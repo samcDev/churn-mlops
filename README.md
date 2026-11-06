@@ -133,3 +133,19 @@ Guardar capturas reales en `evidence/capturas/`. Para un ZIP actualizado, ejecut
 `python scripts/package.py`; incluye `.git` y excluye entornos, cachés y bases temporales.
 La limpieza `kubectl delete namespace churn` elimina también el PVC y sus modelos:
 usarla solamente cuando ya no se necesite el estado del laboratorio.
+
+## Estado MLflow de la ejecución incluida
+
+`evidence/mlflow-snapshot.zip` conserva la base del Registry y los artefactos reales.
+Es evidencia reproducible de esta sesión; no se usa como sustituto del Registry.
+Para inspeccionarlo sin reentrenar, desde la raíz y sin otro servidor en el puerto:
+
+```powershell
+Expand-Archive evidence/mlflow-snapshot.zip -DestinationPath . -Force
+mlflow server --backend-store-uri sqlite:///verify.db --serve-artifacts --artifacts-destination ./mlartifacts --host 127.0.0.1 --port 5000
+```
+
+En otra terminal: `$env:MLFLOW_TRACKING_URI = 'http://127.0.0.1:5000'` y luego
+`pytest -v`. Los CSV de referencia/actual están incluidos en el ZIP de entrega,
+pero no en el bundle Git: el entrenamiento los regenera. Para comprobar despliegue
+se recomienda entrenar nuevamente contra el Registry del clúster usando deploy.ps1.
