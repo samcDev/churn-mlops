@@ -1,0 +1,42 @@
+{
+  "data_drift": false,
+  "concept_drift": true,
+  "reference_log_loss": 0.4375785666991168,
+  "current_log_loss": 2.0754892528563382,
+  "loss_delta": 1.6379106861572215,
+  "features": {
+    "tenure": {
+      "ks": 0.0383250532292406,
+      "p": 0.25203662174795816,
+      "drift": false
+    },
+    "MonthlyCharges": {
+      "ks": 0.050390347764371894,
+      "p": 0.055864083152065536,
+      "drift": false
+    },
+    "TotalCharges": {
+      "ks": 0.04565963241950084,
+      "p": 0.10184839976701379,
+      "drift": false
+    },
+    "Contract": {
+      "tv": 0.007806955287437883,
+      "drift": false
+    },
+    "InternetService": {
+      "tv": 0.0191625266146203,
+      "drift": false
+    },
+    "PaymentMethod": {
+      "tv": 0.017743080198722505,
+      "drift": false
+    }
+  },
+  "thresholds": {
+    "ks_alpha": 0.016666666666666666,
+    "ks_min": 0.1,
+    "tv_min": 0.15,
+    "loss_delta": 0.1
+  }
+}

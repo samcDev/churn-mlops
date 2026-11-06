@@ -1,0 +1,39 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.14, pytest-8.3.5, pluggy-1.7.0 -- /workspace/scratch/573cfa35567e/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /workspace/scratch/573cfa35567e/churn-mlops
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.16.0
+collecting ... collected 9 items
+
+tests/test_system.py::test_public_dataset PASSED                         [ 11%]
+tests/test_system.py::test_registry_versions PASSED                      [ 22%]
+tests/test_system.py::test_api_real_registry PASSED                      [ 33%]
+tests/test_system.py::test_drift_scenarios PASSED                        [ 44%]
+tests/test_system.py::test_invalid_input_contract[tenure-101] PASSED     [ 55%]
+tests/test_system.py::test_invalid_input_contract[MonthlyCharges--1] PASSED [ 66%]
+tests/test_system.py::test_invalid_input_contract[Contract-unknown] PASSED [ 77%]
+tests/test_system.py::test_invalid_input_contract[unexpected-1] PASSED   [ 88%]
+tests/test_system.py::test_categorical_drift PASSED                      [100%]
+
+=============================== warnings summary ===============================
+../.venv/lib/python3.12/site-packages/mlflow/utils/pydantic_utils.py:33
+  /workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/utils/pydantic_utils.py:33: PydanticDeprecatedSince212: Using `@model_validator` with mode='after' on a classmethod is deprecated. Instead, use an instance method. See the documentation at https://pydantic.dev/docs/validation/2.14/concepts/validators/#model-after-validator. Deprecated in Pydantic V2.12 to be removed in V3.0.
+    return pydantic_model_validator(mode=mode)(func)
+
+../.venv/lib/python3.12/site-packages/mlflow/gateway/config.py:454
+  /workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/gateway/config.py:454: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.14/migration/
+    class Route(ConfigModel):
+
+../.venv/lib/python3.12/site-packages/starlette/testclient.py:37
+  /workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/starlette/testclient.py:37: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+tests/test_system.py::test_registry_versions
+  /workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/store/model_registry/rest_store.py:386: DeprecationWarning: label() is deprecated. Use is_required() or is_repeated() instead.
+    req_body = message_to_json(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /workspace/scratch/573cfa35567e/churn-mlops/evidence/pytest.xml -
+======================== 9 passed, 4 warnings in 3.75s =========================

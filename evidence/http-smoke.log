@@ -1,0 +1,17 @@
+{
+  "environment": "local Linux HTTP; not Kubernetes",
+  "prediction_status": 200,
+  "prediction": {
+    "churn": 1,
+    "probability": 0.656528406683008,
+    "threshold": 0.5,
+    "name": "telco-churn",
+    "alias": "production",
+    "version": "4",
+    "run_id": "03b7addcc4ce4e40954a0b404dccedad",
+    "pod": "288bfcebb9d9"
+  },
+  "invalid_status": 422,
+  "frontend_status": 200,
+  "browser_execution": "pending Windows Kubernetes"
+}

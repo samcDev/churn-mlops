@@ -1,0 +1,52 @@
+{
+  "runs": [
+    {
+      "run_id": "cb33590af7fd468ba201da817252b822",
+      "version": "1",
+      "C": 0.01,
+      "val_roc_auc": 0.8249502699630576
+    },
+    {
+      "run_id": "ef3d9a59e9014c658944545bf6372142",
+      "version": "2",
+      "C": 0.1,
+      "val_roc_auc": 0.8288382546694567
+    },
+    {
+      "run_id": "ba26040172d84d1fa38146be62d49d3e",
+      "version": "3",
+      "C": 1.0,
+      "val_roc_auc": 0.8303934485520164
+    },
+    {
+      "run_id": "03b7addcc4ce4e40954a0b404dccedad",
+      "version": "4",
+      "C": 10.0,
+      "val_roc_auc": 0.830571701671446
+    },
+    {
+      "run_id": "7ccea19c0bd547a5b9e849c253631d1b",
+      "version": "5",
+      "C": 100.0,
+      "val_roc_auc": 0.8305587847787335
+    }
+  ],
+  "selected": {
+    "run_id": "03b7addcc4ce4e40954a0b404dccedad",
+    "version": "4",
+    "C": 10.0,
+    "val_roc_auc": 0.830571701671446
+  },
+  "test": {
+    "test_roc_auc": 0.8357307086207342,
+    "test_f1": 0.5899280575539568,
+    "test_accuracy": 0.7977288857345636
+  },
+  "dataset_sha256": "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91",
+  "split_seed": 42,
+  "split_sizes": [
+    4225,
+    1409,
+    1409
+  ]
+}

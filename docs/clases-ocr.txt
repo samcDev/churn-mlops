@@ -1,0 +1,1401 @@
+
+### review/2/page-13.png
+x
+
+Despliegue Blue-Green:
+
+Conmutaci6on instantanea y rollback seguro
+
+Estado 1: Despliegue Inicial
+(V1 Activo, V2 Inactivo)
+
+{
+
+Estado 2: Conmutacion
+(V2 Activo, V1 Standby)
+
+100% de
+Trafico
+
+0% de
+Trafico
+
+Entorno Green
+
+(Modelo V2 - Inactivo)
+
+x
+
+|| Ventaja Principal: -@2)
+
+| Tiempo de inactividad
+cero y capacidad de
+reversion (rollback) en
+segundos si V2 falla.
+
+Costo: =)
+
+Requiere el doble de
+recursos de
+infraestructura para
+mantener ambos
+entornos activos.
+
+
+### review/2/page-09.png
+Métodos estadisticos para la detecciodn automatizada de Drift
+
+El Principio Basico
+
+Ventana de Referencia (Entrenamiento) Ventana Actual (Producci6n)
+
+Test de Kolmogorov-Smirnov (KS) g2°}— Referencias ee
+30.8} --- Actual
+Mide la distancia maxima absoluta entre dos funciones las
+de distribucién acumulativa (CDF). rie Distancia
+Uso Ideal: Variables continuas. Boz Lest
+Detecta cambios en la forma de la distribucién. er lee ee
+: =6 =4 a 0 2 4 6
+
+Population Stability Index (PSI)
+
+Divide los datos en contenedores (bins) y mide como
+cambia la proporcién de la poblacién en cada bin.
+Uso Ideal: Variables categéricas o numéricas
+discretizadas.
+
+ién de Poblacién (%)
+°
+a
+
+eoes
+comes
+
+ro
+2
+6
+
+Contenedores (Bins)
+fm PSI = 0.15 (Alerta Menor)
+
+Propo
+
+
+### review/2/page-06.png
+El problema de las etiquetas retrasadas (Ground Truth Delay)
+
+2. Accién tomada aa
+
+3. Resultado real
+conocido
+(t = dias o meses)
+
+1. Prediccién
+generada (t=0)
+
+TIEMPO DE ESPERA :
+(DELAY) \_ : cane
+a ae
+[es © ml.
+El Desafio: La Consecuencia: La Soluci6n:
+
+En muchos sistemas (ej. deteccién No podemos calcular la precisi6n Depender de la Capa de Datos. Sila
+de fraude), el resultado real de una (Accuracy/F1) en tiempo real. distribucion de los datos de entrada se)
+prediccién tarda semanas en mantiene estable, asumimos que el
+conocerse. rendimiento del modelo es estable.
+
+
+### review/2/page-08.png
+El Drift no siempre es lineal: Gradual, SUbito y Estacional
+
+Drift Subito (Abrupto)
+
+Falla en un sensor, cambio drastico de
+comportamiento.
+
+Toeidelatl TT TT T TTTTT TTT —_
+
+Drift Gradual Cambios lentos en las preferencias del consumidor. |,
+
+Drift Estacional (Recurrente) * Comportamiento ciclico, fluctuaciones climaticas. 4
+
+
+### review/2/page-14.png
+Despliegue Canary: Exposicion gradual al riesgo
+
+Router de :
+Trafico Modelo V1
+Trafico de = Comeeen)
+
+Usuarios (100%)
+
+Router de Router de Router de
+Trafico Trafico Trafico
+
+Modelo V2
+7 (Completo)
+
+Monitoreo estricto (©) dial
+
+de la Capa Técnica
+(errores, latencia) CP Ne
+
+Mi “| Concepto: uF “| Uso Ideal:
+f B) Llamado asi por el canario en la mina. — Modelos con alta incertidumbre técnica o
+Permite probar el modelo en el mundo real con agp arquitecturas nuevas.
+Te J un radio de explosion minimo. L 4
+
+
+### review/2/page-07.png
+Anatomia de la decadencia del modelo: Data Drift vs. Concept Drift
+
+Data Drift (Covariate Shift)
+Cambia la distribucién de las entradas.
+
+"po cambia, P(Y|X) se mantiene,
+
+—>
+
+Referencia
+
+(P())
+
+Actual
+
+(P'®)
+
+Densidad
+
+Valor de Entrada
+
+Ejemplo: Una campajia de marketing atrae a un
+nuevo segmento demografico.
+
+Concept Drift
+Cambia la relacion entre entradas y objetivo.
+
+_ PCVIX) cambia. “al
+
+Gj Clase 1
+
+@
+C)
+e° — Cambio en
+la Relacion
+oe Fs
+
+Caracteristica 2
+
+Limite de
+Decision
+
+Caracteristica 1
+
+Ejemplo: La definicion de una transaccion fraudulenta
+cambia por nuevas tacticas de los atacantes.
+
+
+### review/2/page-03.png
+Monitorear software no es igual a monitorear
+un modelo de Machine Learning
+
+Naturaleza:
+Naturaleza: 222 eee F
+Determinista (codigo estatico) GRD Probabilistica (dependiente de
+
+los datos)
+
+Métricas Clave: | Métricas Clave:
+
+Uso de CPU, Latencia, Uptime Va Salud estadistica, Confianza de
+(Disponibilidad), Tasas de error Aa la prediccion, Distribucién de
+HTTP las entradas
+
+Estado de Falla:
+
+Silencioso (El sistema sigue
+respondiendo rapido, pero las
+predicciones son basura)
+
+Estado de Falla:
+Binario (El sistema se cae o lanza
+errores de ejecucién)
+
+
+### review/2/page-01.png
+NSCHIPICIA SSS
+
+M
+
+t
+
+jaestria en Ciencia de Datos e IA - Médulo MLOps (Clase 7)
+
+eye ican N
+Dia 2 en MLOps: Monitoreo,
+
+
+### review/2/page-11.png
+El Bucle de Entrenamiento Continuo (CT): ~Cuando debemos reentrenar?
+
+Trigger de
+Reentrenamiento
+Automatico
+
+Basado en Tiempo
+
+Reentrenar cada noche o semana, sin importar el
+rendimiento. Ideal para datos de rapida caducidad.
+
+° 30 80018001200
+
+Basado en Rendimiento
+
+El Ground Truth llega. Si la métrica de negocio (F1,
+RMSE) cae por debajo de un umbral, se dispara.
+
+Threshold Crossing
+~ — (eg., F1 < 0.85)
+
+Basado en Drift (Proxy)
+
+El sistema detecta Drift a través de herramientas
+estadisticas. Se dispara preventivamente antes de que
+caigan las métricas.
+
+Reference Current l on pee
+7 \\—° Preventiva
+DRIFT DETECTED:
+PSI>0.2 )
+
+
+### review/2/page-16.png
+La anatomia del sistema MLOps en el Dia 2
+
+! 1. Despliegue Inicial 2. Telemetriade 3 Capas 3. Etiqueta Retrasada —
+(Blue-Green / Canary) (Infraestructura, Datos, Negocio) : (Ground Truth Delay)
+@-0-@
+Prediccion Etiqueta
+Queue cenecién el
+
+para carler validador
+
+” 4, Deteccion de Drift
+(Data/Concept Drift)
+
+vy i:
+Modelo Modelo
+Vv wy Retador (V2) [p>
+Retorno al oie HE '._ Deriva de Datos y Concepto J
+Desplieque Mi nN p-value ion a
+Continuo Evaluacién y reentrenamiento
+
+automatizado
+
+oboe iz 6. A/B Testing 5. Trigger de CT
+
+Continuo (Validaci6n frente al Campeén) (Disparo de a
+
+es un activo. Un modelo monitoreado, evaluado y actualizado conti es un sistema em
+
+### review/2/page-02.png
+El despliegue no es la meta de un modelo, es el inicio de su operacion
+
+Dia 1: Desarrollo
+
+Entrenamiento,
+validacion y
+empaquetado. Un
+entorno estatico y
+controlado.
+
+Dia 2: Produccién
+
+El mundo real.
+
+Entornos dinamicos,
+datos cambiantes,
+degradacién estadistica
+y toma de decisiones
+automatizada.
+
+El 87% de los problemas de
+rendimiento en producci6n
+provienen de los datos, no del
+cédigo o Ia infraestructura.
+
+### review/2/page-10.png
+Llevando la teoria a la practica: Reportes de Drift con Evidently
+
+ata Drift Detected: 4 out of 10 features d
+
+A D rifted. | e Herramienta open source
+
+lider para perfiles de datos.
+
+Feature: User_Age
+
+@ Automatiza la comparacion
+estadistica entre el dataset
+original y los lotes diarios.
+
+GB Reference Distribution
+5 Current Distribution
+
+Statistical Mismatch
+
+Frequency
+
+e Actua como el sensor que
+dispara las alertas en la
+sala de control de MLOps.
+
+= A
+
+
+### review/2/page-12.png
+Mitigacion de riesgos: Estrategias de despliegue en produccién
+
+Version Actual
+Desplegar un modelo nuevo siempre conlleva riesgo. Los routers de (Produccién)
+trafico permiten exponer el modelo gradualmente o tener
+mecanismos de reversi6n (rollback) instantaneos.
+
+Trafico de Usuarios
+
+aime: - ——_ =p —
+— -O- > aye, =
+SS —— 3
+- ° 9 (5 eS
+S Router de 4
+Trafico Nueva Version
+(Candidato)
+Cr» |
+
+El trafico se conmuta instantaneamente porcentaje de usuarios (e.g., 5%) para para comparar su rendimiento y
+|
+|
+
+Blue-Green oo Canary peut A/B Testing
+Dos entornos idénticos (Azul y Verde). Despliegue gradual a un pequefio Divide el trafico entre dos versiones
+de la versi6n actual a la nueva, permitiendo detectar problemas antes de afectar a métricas de negocio en paralelo. Ideal
+una reversion inmediata en caso de fallo. toda la base. Escala progresivamente. para experimentos controlados.
+
+Minima interrupcion.
+
+
+### review/2/page-05.png
+La observabilidad de los sistemas ML requiere
+telemetria en tres dimensiones
+
+\ Capa de Negocio
+
+\ Tasas de conversién, Ahorro generado,
+
+\ Retencién de usuarios.
+
+Impacto final: El verdadero objetivo del modelo.
+
+Capa de Datos y Modelo
+
+Distribuciones de entrada, Tasas de positivos,
+
+Confianza de las predicciones, Valores nulos.
+Salud probabilistica: El modelo entiende los
+datos que esta recibiendo hoy?
+
+\. Capa Técnica
+
+~~ Latencia, Throughput, Errores de API,
+Utilizacion de GPU/Memoria.
+Base del sistema: Si esto falla, no hay
+servicio.
+
+
+### review/2/page-04.png
+Rubrica de preparacion para produccidn: El ML Test Score de Google
+
+Para mitigar la deuda técnica en ML, Google establecié una rubrica de evaluacion que certifica
+si un modelo esta realmente listo para produccion (Breck et al., 2017).
+
+aN
+ML Test Score
+\—
+
+— = - =
+( GP betes sa natn crac
+——
+Features & Datos Desarrollo del Modelo Infraestructura Monitoreo
+
+? ry
+OLE 3
+
+Validacion de esquemas, Cédigo de entrenamiento Reproducibilidad, Alertas de degradaci6n,
+
+privacidad, utilidad de determinista, baselines, integracion continua, estabilidad numérica,
+
+métricas.
+
+(—
+
+caracteristicas. despliegue automatizado. frescura de datos.
+
+
+### review/2/page-15.png
+A/B Testing de Modelos: Decisiones basadas
+en significancia estadistica
+
+=
+
+Modelo Campeén (V1)
+
+Recibe 50% del trafico
+aleatorizado.
+
+Métrica observada:
+Tasa de Conversi6n.
+
+»
+
+=
+
+Trafico
+
+B88 . Modelo Retador (V2)
+VV
+Recibe 50% del trafico
+aleatorizado.
+Métrica observada:
+i Conversién Tasa de Conversi6n.
+
+ie
+
+El Juicio Estadistico
+
+] 0 1
+A diferencia del Canary (que evaltia estabilidad técnica),
+el A/B Test evaltia el impacto de negocio. El Retador solo
+reemplaza al Campeén si demuestra una mejora en los
+KPls con significancia estadistica. |
+
+«
+
+I
+a
+
+asa
+
+V4
+
+v
+
+Conversion
+
+
+### review/0/page-13.png
+Fase de Entrega Continua (CD): Del Artefacto al Servicio
+
+eee eee
+
+Estado Actual: El modelo super6 todas las El Reto CD: Envolver ese modelo matematico
+
+} pruebas, vencié al campeon y sus abstracto en un servicio web robusto,
+métricas estan registradas. escalable y seguro para que otras aplicaciones
+
+e puedan consumirlo sin friccion.
+
+
+### review/0/page-09.png
+-Orquestacién: GitHub Actions como Motor de MLOps }
+
+Hy
+
+Gestion de secretos
+segura para conectar
+con infraestructuras
+Cloud y Registries de
+modelos.
+
+Integraci6n nativa
+con el repositorio de
+cédigo y control de
+versiones.
+
+=
+
+al
+
+Registros de
+Métricas ML
+
+= Orchestrator
+ee é — 4 Trazabilidad total:
+
+Ejecucion automatizada : Cada contenedor
+basada en eventos de )
+
+Git (push, pull_request). yy
+
+desplegado se puede
+rastrear hasta un
+commit exacto
+| (usando ${{ github.sha W.,
+
+S -
+
+### review/0/page-17.png
+Despliegue Blue-Green (Azul-Verde)
+
+| Trafico de Entrada
+e Mecanismo: El entorno Azul (Produccién
+Actual) atiende el 100% del trafico.
+
+El entorno Verde (Nuevo Modelo) se
+despliega en paralelo, de forma aislada.
+
+a 7
+-e Una vez que el entorno Verde pasa las
+_Pruebas de humo, el Load Balancer
+“cambia el interruptor, dirigiendo el
+~-A00% del trafico al Verde.
+
+Ventaja MLOps: Cero tiempo de
+Ventaja MLOps: Cero tiempo de inactividad
+(zero-downtime). Si el modelo Verde falla
+en produccion, el interruptor se devuelve
+} instantaneamente al entorno Azul.
+
+### review/0/page-06.png
+Pilar 1: Pruebas de Codigo (Unit Tests)
+
+IDE/terminal wind id i
+lerminal window Asercién de Escalamiento:
+
+too weft Verificar que las funciones de
+import numpy as np / = preprocesamiento escalan los
+from preprocessing import scale_data, one_hot_encode, impute_missing - valores numéricos correctamente
+class TestPreprocessing(unittest.TestCase) : (ej. media 0, varianza 1).
+
+def test_escalamiento_datos(self): +
+# Test data scaling to mean 8, variance 1 :
+data = np.array([[1.6], [2.6], [3.6]])
+scaled = scate-dataldatay -
+seLf.assertAlmostéqual(np.mean(scaled), 0.0. 7" —
+seLfassertAlmostEqual(np.var(scaled), 1.0) Validacién de Codificacién:
+
+test_one_hot_encoding(self): Asegurar que los vectores
+
+# Test ene-hot encading structure ) one-hot encoded contengan un
+categories = ['cat', 'dog', 'bird'] /
+
+encoded = one_hot_encode( categories) ; solo ‘1’ y el resto ceros.
+# Ensure exactiy one '1' per row :
+self.assertTrue(np.all(np.sum(encoded, axis=1) == 1))
+
+test_manejo_nulos(self):
+
+# Test missing value imputation .
+
+data with nans = np.array(L (2.8) zylneenan) {3.011) ; Manejo de Nulos: Comprobar
+imput = impute_missing| a_with_nans, strategy='mean' — A A q
+seLf.assertFalse(np. isnan(inputed) -any()) . que la légica de imputacion
+
+# Check imputed value (e.g., nean of 1 and 3 is 2)
+
+Self.assertEqual(Inputedii, 6], 2.6) ')] feemplaza los valores faltantes
+segun lo esperado.
+
+if _name_ == '_main_':
+unittest.main()
+
+FF] SY a! Se
+Takeaway: Aislar los componentes del pipeline asegura que los errores de
+prediccién provengan de los datos 0 el algoritmo, no de un bug de codigo.
+
+
+### review/0/page-08.png
+Pilar 3: Validacién del Modelo y la Compuerta de Calidad
+
+Pruebas de Umbral x ~
+(Threshold Tests) - Vali
+falidado &
+El modelo debe superar == Le Promovido (Quality Gate)
+una métrica minima Ss < Si el Retador no
+aceptable estatica (¢j. . 4 ¥ demuestra un
+Error Absoluto < 80%) SS - 4 rendimiento
+
+para evitar regresiones ~ ~ estadisticamente
+catastroficas. 4 ‘ r > superior o igual (sin
+introducir sesgos), el
+
+| Fallo pipeline Cl falla
+Challenger intencionalmente y_
+(Retador) | * Bloqueado bloquea la promocién.
+
+El Veredicto
+
+Tel Duelo (Campeon vs. Retador) AP
+
+El nuevo modelo entrenado x Wy
+(Challenger) se evalua contra el mismo = =
+dataset de validacién que el modelo 78
+en produccién (Champion).
+
+=
+
+Quality Gate
+(Compuerta de Calidad)
+
+Takeaway: La validacion del modelo asegura que solo se promuevan modelos de alta calidad que superen
+
+métricas estrictas y demuestren una mejora real sobre la version actual, previniendo regresiones.
+
+i.
+
+
+### review/0/page-14.png
+Contenerizacion: Empaquetando la Inteligencia
+
+Capa de Serving: El servidor web
+que expone el modelo a través de
+endpoints REST 0 gRPC (ej. FastAPI).
+
+El Modelo Serializado: El
+artefacto aprobado descargado
+del Registry.
+
+| Por qué Docker:
+
+Garantiza que el modelo se_ |
+
+ejecute exactamente igual
+
+en produccién que en
+
+el entorno de validaci6n,
+
+resolviendo el problema de
+‘funciona en mi maquina’.
+
+Librerias ML: Versiones
+estrictamente fijadas (ej.
+pandas==2.0.0, torch==2-1 ))
+
+Entorno Base: Sistema __
+operativo y dependencias
+binarias (ej. Ubuntu).
+
+### review/0/page-07.png
+Pilar 2: Validacion de Datos (DataOps)
+
+Cambios de Esquema: 7
+P Detectar si una columna o
+ esperada desaparecié o cambidé
+
+de tipo (ej. int a string). a
+
+Valores Nulos Inesperados:
+Bloquear la ejecucion si el
+porcentaje de datos faltantes Datos Validos
+
+43 supera un limite tolerable.
+
+Deriva de Distribucién (Drift): .
+
+Evaluar si las propiedades
+estadisticas (media, rangos) de los
+datos de entrada se han desviado
+significativamente respecto al
+conjunto original.
+
+corruptos, ahorrando tiempo y poder de comput
+
+
+### review/0/page-03.png
+DevOps Tradicional vs. CD4ML
+
+Foco de Gestion
+
+MLOps maneja la trinidad: Codigo + Datos + Modelo.
+
+A+S+ &
+
+DevOps maneja Codigo. ke />
+
+Naturaleza del Sistema
+
+DevOps es Determinista (mismo 5
+cdédigo = mismo resultado). ¢ .
+
+MLOps es Probabilistico (datos y yx
+= ©  algoritmos introducen variabilidad). :
+
+Pruebas (Testing)
+
+MLOps evaltia esquemas de datos, c:f_
+de pérdida y métricas estadisticas.« \. lal
+
+DevOps prueba unitariamente el software. 20)
+
+Disparadores de Despliegue
+
+5 ‘5 tath & MLOps despliega por cddigo, nuevos ee
+DevOps despliega por cambios de cddigo. L “a> o> FiArania dotcniorcalnccclet
+
+
+### review/0/page-19.png
+Puesta en Produccion: ¢Como servimos el modelo?
+
+E! Ultimo Eslabén: Una vez que la infraestructura esté lista para recibir el contenedor,
+| debemos decidir como el modelo procesaré las peticiones HTTP internas.
+
+N
+
+as 2. El Enfoque Empaquetado: Utilizar
+servidores de inferencia automaticos
+(Model Serving). ~
+
+1. El Enfoque Artesanal:
+Desarrollar una API REST
+a medida desde cero.
+
+### review/0/page-01.png
+MLOps y Puesta en Produccion:
+Automatizacion Continua
+
+Clase 6: De la Experimentacion Local a la Linea de
+Ensamblaje "Cero Intervenciones" (CD4ML)
+
+Maestria en Ciencia de Datos e IA | Modulo MLOps
+A) NotebookLM
+
+### review/0/page-11.png
+El Job de Entrenamiento (Continuous Training)
+
+-| Descargar Datos |)
+eee
+
+dvc pull
+
+pip install -r
+
+Ejecutar el script
+principal.
+
+' Obtener la version
+correcta del dataset
+usando DVC 0
+
+conexion a S3/GCS.
+
+Instalar dependencias
+
+exactas
+(requirements.txt 0
+Poetry).
+
+matriz de confusion y
+almacenar el modelo
+serializado (ej. .pkl o
+.onnx) usando Artifacts
+0 subiéndolo a un
+
+Model Registry.
+
+
+### review/0/page-16.png
+Estrategias de Despliegue Seguro
+
+El Problema La Solucion
+A
+
+eee
+
+°
+
+El Problema: Reemplazar bruscamente el modelo
+de producci6n actual por el nuevo puede causar
+caidas de servicio (downtime) 0 exponer errores
+imprevistos a todos los usuarios.
+
+La Solucion: Técnicas de enrutamiento avanzado
+que permiten verificar la estabilidad y el
+rendimiento del nuevo modelo en el mundo real,
+con la capacidad de hacer un rollback (marcha
+atras) inmediato si algo falla.
+
+
+### review/0/page-18.png
+Despliegue Canary (Canario)
+
+90% Trafico de Entrada
+
+’ Block A
+(Produccion Actual)
+
+we
+
+¢ Mecanismo: Se despliega el nuevo modelo y se expone solo auna fraceion minuscula de usuarios (ej. 10% del trafico).
+© Se monitorean activamente latencia; ¢ “enores e indicadores de rendimiento del modelo.
+e Si el rendimiento es estable, el trafico se incrementa gradualmente (2 25% 509 i," 00%).
+
+Ventaja MLOps: Permite una validaci6n de rendimiento en el mundo real (vista previa)
+
+limitando el radio de explosion si el nuevo modelo se comporta mal con datos en vivo.
+
+
+### review/0/page-02.png
+El Objetivo: Eliminar la Friccion del Paso a Produccion
+
+El Pasado El Futuro - CD4ML
+
+Flujo manual. Notebooks aislados, entrenamiento Flujo automatizado. EI codigo, los datos y el modelo
+artesanal, modelos estancados y deterioro viajan desde un git push hasta un endpoint seguro en
+silencioso (Model Decay). produccion, sin intervencién humana.
+
+A) NotebookLM
+
+### review/0/page-21.png
+El Flujo Completo End-to-End: La Vision CD4ML
+
+Cero Intervenci6n Humana
+
+7 7a yl i | Soe sf 7. Inferencia y
+1. git push 3. Entrenamiento __ 5. Empaquetado Monitoreo
+(Commit de del Modelo (CT). ___ Docker y Registro : (Bucle de
+~ 2 4 retroalimentacion)
+
+Codigo/Datos)
+
+2. Pruebas
+Unitarias y a oth
+Validacién de es yy
+Esquema (Cl) ve
+
+6. Despliegue 7. Inferencia y
+Blue-Green/Canary  Monitoreo
+a Produccién (CD) (Bucle de
+retroalimentacion)
+
+~ 4. Quality Gat :
+ae ‘Campeonys
+— Retador (Cl)
+
+Conclusion: MLOps no es solo usar herramientas nuevas; es transformar la ciencia de datos en una
+disciplina de ingenieria continua, repetible y resistente a fallos. Preparacion para el laboratorio practico.
+
+Z
+
+e : : A NotebookLM
+
+### review/0/page-10.png
+ODINIMDUATAHRWNPeP @
+
+PRPRPPRPRPRP
+OAuBRWNP SS
+
+Anatomia de un Workflow YAML
+
+Eventos (Events)
+on: [push, pull_request] El disparador. Cuando se
+jobs: ejecuta el pipeline?
+build-and-train:
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v3
+- name: Set up Python
+uses: actions/setup-python@v4
+with:
+python-version: '3.9'
+- name: Install dependencies
+run: |
+python -m pip install —-upgrade pip
+pip install -r requirements. txt
+— name: Train model
+run: make train
+
+Ejecutores (Runners) 2
+La maquina virtual efimera (o
+self-hosted con GPU) que ejecuta
+
+Pasos (Steps)
+Los comandos individuales de
+bash 0 acciones predefinidas
+
+que ejecutan la tarea.
+
+
+### review/0/page-12.png
+Implementando el Quality Gate en el Orquestador
+
+El Mecanismo de Bloqueo: El paso final del Job
+de entrenamiento ejecuta un script de validacién
+(ej. validate_model. py).
+
+Fallo Intencional: Si el modelo no
+
+supera el umbral o al Campeon, el
+
+script devuelve un cddigo de error
+
+(ej. sys.exit(1)).
+
+GitHub Actions interpreta esto como
+
+un fallo del Job completo (marcado
+con una ‘X’ roja).
+
+Challenger >
+Champion?
+
+Dependencia Estricta: El Job
+de Entrega (CD) se configura con
+needs: build-and-train.
+
+Si el Cl falla, el despliegue jamas
+se ejecuta.
+
+### review/0/page-05.png
+Pruebas en el Cl: Mas Alla del Codigo
+
+Un pipeline de MLOps robusto requiere validacion en tres frentes antes de permitir la promocidn a produccion.
+
+Validacién
+
+Chequeos de
+
+Verificacion de esquema, Pruelas de umbral | _
+transformaciones, distribucion, (Threshold Tests),
+ingenieria de valores nulos y sesgo y duelos
+features y logica | | 7|| anomalias antes de rendimiento
+del pipeline. } | \del entrenamiento. (Campe6on vs.
+
+Retador).
+
+
+### review/0/page-04.png
+La Anatomia de CD4ML: Integracién, Entrenamiento y Entrega
+
+Integracion
+Continua (Cl)
+
+Construccion y prueba
+automatizada del cédigo,
+validacién de datos y
+evaluacion de la
+arquitectura del modelo.
+
+Entrenamiento
+Continuo (CT)
+
+Ejecucién automatica del
+pipeline de machine learning
+para re-entrenar el modelo
+con nuevos datos.
+
+Datos ———® Modelo
+
+Entrega
+Continua (CD)
+
+Empaquetado del modelo
+validado (ej. Docker) y su
+despliegue seguro al
+entorno de produccién
+para inferencia.
+
+
+### review/0/page-20.png
+Matriz de Decision: FastAPI vs. MLflow Serve
+
+API REST a Medida (FastAPl) Serving Automatico (MLflow Models Serve)
+
+| ¢ Control Total: Permite logica hiper- personalizada ||  Rapidez y Estandarizacion: Convierte el modelo en
+(pre/post-procesamiento complejo, validaciones __unendpoint REST con un solo comando.
+estrictas, integraci6n con multiples bases sde. Empaquetado estandarizado con dependencias
+
+auto-gestionadas.
+
+e Mantenimiento: Mayor esfuerzo de desarrollo. El  Flexibilidad: Menor adaptabilidad para logicas de
+equipo debe gestionar codigo de infraestructura pre-procesamiento fuera del grafo de inferencia del
+web ae middlewares, ona
+
+Cuando usar: FastAPI para sistemas complejos y arquitecturas acopladas; MLflow
+para alta velocidad de despliegue y estandarizacion de pipelines.
+
+
+### review/0/page-15.png
+Publicacion en el Registry y Actualizacion
+
+Paso 1: Push al Registry: GitHub Actions
+
+publica la imagen Docker construida en un
+
+Container Registry (ej. GitHub Container
+Registry, AWS ECR, Docker Hub).
+
+> Registry” A
+7 Gittlub AWS ECR Docker Hub, =
+
+Container. SS
+
+~~ Registry |
+
+' Cluster Kubernetes
+(Produccién)
+
+Trazabilidad Inmutable: La imagen se
+
+U "| etiqueta (tag) automaticamente con el Paso 2: Disparo del Despliegue:
+© O ge SHA del commit de Git, asegurando un El orquestador notifica al entorno de
+vinculo perfecto entre el codigo fuente, produccion (ej. un cluster Kubernetes)
+GitHub Actions los datos exactos de entrenamiento y el para que descargue la nueva imagen y
+
+contenedor desplegado. reemplace los contenedores antiguos.
+
+
+### review/1/page-13.png
+Gobernanza Central: Model Registry
+
+El puente colaborativo entre la experimentacion del cientifico de datos y los sistemas de produccion.
+
+El Laboratorio La Fabrica
+
+Model Registry
+
++ Asigna Nombres Oficiales nent
+* Controla Versiones (v1, v2)
+
+* Mantiene el Linaje
+
+Hundreds of chaotic, experimental = Strict production systems that
+“Runs” in a Tracking Server require absolute stability
+
+
+### review/1/page-09.png
+Comparacion de Corridas Lado a Lado
+
+Visualizacion multidimensional para identificar las mejores combinaciones de hiperparametros.
+
+Las lineas resaltadas
+revelan patrones de
+
+hiperparametros que
+maximizan la precision.
+
+learning_rate max_depth
+
+
+### review/1/page-17.png
+Despliegue Dinamico por Nombre y Alias
+Carga modelos directamente desde el registro para inferencia sin conocer el path del archivo.
+
+model_uri =
+
+modelo_produccion = mlflow. pyfunc. load_model(model_uri)
+prediccion = modelo_produccion. predict (nuevos_datos)
+
+aang docker
+
+Inference —-
+ae
+
+Automated HTTP
+Load Balancer Endpoint (FastAPI)
+
+
+### review/1/page-06.png
+La API de Registro (Logging API)
+
+Integracion transparente en el codigo de entrenamiento mediante tres funciones fundamentales.
+
+) mlflow.start_run():
+
+mlf low. log_param('learning_rate',
+
+; Guarda la configuracién
+mlf low. log_param('n_estimators',
+
+mlflow. log_met ric('rmse',
+mlflow. log_metric('r2_score',
+
+Guarda el rendimiento
+
+mlflow.sklearn. log_model(rf_model, 'modelo_clasificacion') Serializa el modelo fisico
+
+A NotebookLM
+
+### review/1/page-08.png
+Dominando la Interfaz: Consultas en el Caos
+
+Busqueda y filtrado avanzado para encontrar la configuracién dptima entre cientos de iteraciones.
+
+: Sintaxis SQL-like para
+Q metrics.rmse < 0.5 AND params.alpha = '@.1'| filtrar metadatos
+
+instantaneamente.
+
+Run Name alpha learning_rate rmse
+optim_run_01 0.1 0.01 0.42
+optim_run_02 0.1 0.008 0.45
+optim_run_03 0.1 0.012 0.48
+optim_run_04 @,at 0.005 0.49
+
+### review/1/page-14.png
+El Tablero Kanban del Ciclo de Vida
+
+Gestion de estados y transiciones auditables para cada version de un modelo registrado.
+
+Model Card
+
+= Recomendador V2
+
+2023-10-27 14:35:00 UTC
+
+Las transiciones de etapa habilita de integracion continua (CI/CD) y auditorfas de seguridad.
+
+
+### review/1/page-07.png
+Del Codigo a la Interfaz Grafica
+La ejecucion en el backend se materializa inmediatamente en el MLflow UI.
+
+MLflow Run Detail
+
+Parameters
+Key Value
+mlflow.start_run():
+learning_rate 0.01
+mlf low. log_param('learning_rate', n_estimators 100
+
+mlf low. log_param('n_estimators',
+
+Metrics: Validation Loss
+
+mlf low. log_metric('rmse', )
+mlf low. log_metric('r2_score',
+
+Loss
+
+»Ssklearn. log_model(rf_model, 'modelo_clasificacion') Time/Step
+
+Artifacts
+vy © modelo_clasificacion
+
+@ model.pki
+B conda.yaml
+
+AX NotebookLM
+
+### review/1/page-03.png
+El Cambio de Paradigma: Experiment Tracking
+
+De hojas de calculo desconectadas a un registro inmutable y centralizado.
+
+RMSE: @.42
+
+Alpha: @.1
+
+L1_Ratio: 0.5
+
+
+### review/1/page-01.png
+MLOps: Del Caos al
+Control en Produccion
+
+miflow
+
+Clase 5: Seguimiento de Experimentos y
+Gestion del Ciclo de Vida con MLflow
+
+
+### review/1/page-11.png
+Premium ML Control Room
+
+Radiografia de un Artefacto MLflow
+
+Una estructura de directorio estandarizada que garantiza la reproducibilidad absoluta.
+
+El manifiesto YAML que define
+los flavors y metadatos.
+
+conda.yaml / El contrato de dependencias
+requirements.txt exactas del entorno.
+
+/modelo_clasificacion
+
+model. pkL El binario del modelo
+serializado (pesos reales).
+
+Esquema de firma de datos
+esperado.
+
+input_example. json
+
+
+### review/1/page-16.png
+Colaboracién Basada en una Unica Fuente de Verdad
+
+Una base de datos y un almacén de artefactos remotos habilitan el trabajo en equipo concurrente.
+
+Data Scientist A ML Engineer
+(Entrenando en Jupyter local) MLflow (Revisando modelos en el Model
+bh Tracking Server . Registry para su despliegue)
+
+Data Scientist B
+(Ajustando hiperparametros en la nube)
+
+### review/1/page-18.png
+Sintesis: El Flujo Completo de MLOps
+
+Del codigo de entrenamiento al endpoint en produccidn de forma automatizada y auditable.
+
+Cédigo (Python) Tracking Server Artifact Store Model Registry Produccion
+
+=] 6 [2e
+
+Inferencia en
+Docker/Kubernetes
+invocando la URI
+del modelo
+
+Guarda métricas y Guarda el paquete Asigna version V1 y
+
+1flow.star 4 i i
+mlflow.start_run() parametros MLmodel alias @champion
+
+
+### review/1/page-02.png
+La Realidad Inescalable del Cientifico de Datos
+
+El control manual de versiones genera pérdida de linaje, métricas irrecuperables y
+despliegues imposibles.
+
+El Cementerio de Archivos La Hoja de Calculo Rota
+
+—] modelos_ml experimentos_ml.xlsx
+
+y= “we Bi v te
+modelo_v1.pk1 A 8 c D
+Fecha Modelo Métrica_ Notas ?:No recuerdo
+Asso 2023-01-15 LR 0.85 {vacio}
+modelo_final.pkl
+A= =m
+modelo_final_FINAL_usa_este.pkl
+
+Aa ma
+modelo_test_lr_0.01_sin_outliers.pkl
+
+que datos
+usamos aqui
+2023-01-15 LR
+
+2023-01-22 XGB
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+3
+
+
+### review/1/page-10.png
+Premium ML Control Room
+
+Mas Alla de los Pesos: El Formato de Empaquetado
+Un modelo serializado es inutil si el entorno de produccién no puede replicar sus dependencias.
+
+El Problema: Incompatibilidad de Entorno
+
+\
+ImportError ikit-learn
+version mismatch
+
+modelo. pkl
+
+El modelo viaja junto con su
+entorn ‘to (versiones
+de libre! Python y
+
+dependencias de sistema).
+
+modelo. pkl
+
+
+### review/1/page-12.png
+El Ecosistema de Sabores (Flavors) y PyFunc
+
+Normalizando la diversidad de librerias bajo una Unica interfaz de inferencia.
+PyFunc
+
+'
+—_= MLflow (Python Function)
+b
+
+Model Formas Standard Python Function
+
+Interface (predict())
+
+PyTorch
+
+El flavor genérico PyFunc permite que herramientas de despliegue carguen
+
+cualquier modelo como una funcién estandar de Python con un método predict(),
+sin conocer la libreria subyacente.
+
+### review/1/page-05.png
+Taxonomia del Tracking: Experimentos vs. Corridas
+
+La jerarquia de datos que transforma la experimentacion en una base de datos estructurada.
+
+EXPERIMENT
+
+Prediccioén de Churn
+
+(Agrupa el objetivo de negocio)
+
+Lun] | Lun |
+
+RUN RUN
+RandomForest_v1 XGBoost_v2
+Parameters Metrics Artifacts Parameters Metrics Artifacts
+n_estimators: 100 accuracy: 0.85 model. pk1, learning_rate: 0.05 accuracy: 0.89 model.pk1,
+confusion_matrix.png feature_importance.csv
+
+### review/1/page-04.png
+El Centro de Mando: Ecosistema MLflow
+
+Un estandar de cdédigo abierto para gestionar el ciclo de vida completo del Machine Learning,
+independientemente de la libreria.
+
+MLflow Tracking Model Registry
+
+Registro de hiperparametros, Gobernanza centralizada,
+métricas y artefactos. . versiones y transiciones de etapa.
+
+MLflow Models
+
+Empaquetado
+estandarizado y gestién
+de dependencias.
+
+
+### review/1/page-15.png
+Premium ML Control Room
+
+El Paradigma Champion / Challenger
+
+Uso de alias modernos para despliegues dinamicos sin interrupcién del servicio.
+
+Champion Lane
+
+100%
+
+Los alias separan la version numérica
+inmutable de su rol ldgico, permitiendo
+rollbacks instantaneos y pruebas A/B.
