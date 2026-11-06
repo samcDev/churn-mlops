@@ -1,4 +1,5 @@
 import hashlib, json, subprocess
+from pathlib import Path
 import mlflow
 import mlflow.sklearn
 from mlflow import MlflowClient
@@ -33,7 +34,7 @@ def main():
             proba=model.predict_proba(Xval)[:,1]
             score=roc_auc_score(yval,proba)
             mlflow.log_params({'C':c,'seed':42,'train_rows':len(Xtr),'validation_rows':len(Xval),'test_rows':len(Xtest),'threshold':.5})
-            mlflow.set_tags({'dataset_sha256':digest,'git_commit':commit,'selection':'validation_roc_auc','authoring':'individual-assisted'})
+            mlflow.set_tags({'dataset_sha256':digest,'git_commit':commit,'selection':'validation_roc_auc','authoring':'individual-assisted','training_source_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()})
             mlflow.log_metrics({'val_roc_auc':score,'val_pr_auc':average_precision_score(yval,proba),'val_f1':f1_score(yval,proba>=.5)})
             mlflow.log_artifact(str(ROOT/'requirements.txt'))
             info=mlflow.sklearn.log_model(model,'model',signature=infer_signature(Xtr,model.predict(Xtr)),input_example=Xtr.head(2))
@@ -51,7 +52,8 @@ def main():
     evidence=ROOT/'evidence';evidence.mkdir(exist_ok=True)
     result={'runs':rows,'selected':best,'test':metrics,'dataset_sha256':digest,'split_seed':42,'split_sizes':[len(Xtr),len(Xval),len(Xtest)]}
     (evidence/'training.json').write_text(json.dumps(result,indent=2))
-    Xval.assign(Churn=yval).to_csv(evidence/'reference.csv',index=False)
+    Xtr.assign(Churn=ytr).to_csv(evidence/'reference.csv',index=False)
+    Xval.assign(Churn=yval).to_csv(evidence/'performance-reference.csv',index=False)
     Xtest.assign(Churn=ytest).to_csv(evidence/'current.csv',index=False)
     print(json.dumps(result,indent=2))
 if __name__=='__main__': main()

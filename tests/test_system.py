@@ -29,9 +29,10 @@ def test_api_real_registry():
 def test_drift_scenarios():
     mlflow.set_tracking_uri(tracking());m=mlflow.sklearn.load_model(f'models:/{NAME}@production')
     ref=pd.read_csv(ROOT/'evidence/reference.csv');cur=pd.read_csv(ROOT/'evidence/current.csv')
-    normal=check(ref,cur,m);assert not normal['data_drift'] and not normal['concept_drift']
-    assert check(ref,scenario(cur,'data'),m)['data_drift']
-    concept=check(ref,scenario(cur,'concept'),m)
+    perf=pd.read_csv(ROOT/'evidence/performance-reference.csv')
+    normal=check(ref,cur,m,perf);assert not normal['data_drift'] and not normal['concept_drift']
+    assert check(ref,scenario(cur,'data'),m,perf)['data_drift']
+    concept=check(ref,scenario(cur,'concept'),m,perf)
     assert concept['concept_drift'] and not concept['data_drift']
 
 @pytest.mark.parametrize('field,value',[('tenure',101),('MonthlyCharges',-1),('Contract','unknown'),('unexpected',1)])
@@ -46,3 +47,26 @@ def test_categorical_drift():
     ref=pd.read_csv(ROOT/'evidence/reference.csv');cur=pd.read_csv(ROOT/'evidence/current.csv')
     cur['Contract']='Two year'
     assert check(ref,cur,m)['features']['Contract']['drift']
+
+from src.temporal import alarm_steps,evaluate
+
+def test_training_drift_baseline():
+    assert len(pd.read_csv(ROOT/'evidence/reference.csv'))==4225
+    assert len(pd.read_csv(ROOT/'evidence/performance-reference.csv'))==1409
+
+def test_transient_drop_does_not_trigger_retraining():
+    assert not any(x['alarm'] for x in alarm_steps([.6,.6,.82,.6,.6],.83))
+
+def test_sustained_drop_and_delayed_labels():
+    states=alarm_steps([.6,None,.6,.6],.83)
+    assert states[1]['status']=='waiting_for_labels'
+    assert not any(x['alarm'] for x in states[:3])
+    assert states[3]['alarm']
+
+def test_temporal_real_registry():
+    mlflow.set_tracking_uri(tracking());m=mlflow.sklearn.load_model(f'models:/{NAME}@production')
+    perf=pd.read_csv(ROOT/'evidence/performance-reference.csv');cur=pd.read_csv(ROOT/'evidence/current.csv')
+    normal=evaluate(m,perf,cur,'normal');shifted=evaluate(m,perf,cur,'concept')
+    assert not normal['alarm']
+    assert shifted['alarm'] and shifted['first_alarm_batch']==7
+    assert sum(b['rows'] for b in shifted['batches'])==len(cur)
