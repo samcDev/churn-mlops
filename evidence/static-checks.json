@@ -1,0 +1,8 @@
+{
+  "yaml_resources": 6,
+  "api_replicas": 3,
+  "prestop_configured": true,
+  "python_compileall": "passed",
+  "cluster_apply": "not executed",
+  "powershell_execution": "not executed"
+}

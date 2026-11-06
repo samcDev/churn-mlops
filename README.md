@@ -4,11 +4,10 @@ Implementación funcional con datos públicos IBM Telco (7.043 clientes), seis p
 cinco corridas reproducibles, cinco versiones registradas, alias `production`, FastAPI,
 Docker, Kubernetes y controles de drift. Leer `docs/INFORME.md` y `docs/MATRIZ.md`.
 
-**Alcance de la verificación:** resultados locales reales en `evidence/`. Docker,
-Kubernetes y navegador contra Kubernetes requieren ejecución en Windows. No se
-atribuyen puntos de la rúbrica oficial porque el enunciado no estaba entre los seis adjuntos.
-Cinco configuraciones se agrupan en un experimento MLflow, con cinco runs: la terminología
-del requisito debe contrastarse con el enunciado (clase 5, diapositiva 5).
+**Enunciado oficial recibido y contrastado:** `docs/ENUNCIADO_OFICIAL.md` y
+`docs/MATRIZ.md`. Cinco runs comparables cumplen el requisito de cinco ejecuciones.
+Hay 13 pruebas de integración aprobadas en Linux; Docker/Kubernetes, UI del clúster
+y demostración en vivo siguen pendientes. No se dan por obtenidos los 15 puntos extra.
 
 ## 1. Preparación en PowerShell (Python 3.12)
 
@@ -83,9 +82,10 @@ No exige reparto uniforme: el Service distribuye conexiones y la muestra es fini
 
 ## 4. Evidencias auténticas pendientes
 
-El script de Kubernetes guarda transcripción, UIDs antes/después de eliminar un Pod,
-conteos por Pod y estado de cinco réplicas. No demuestra ausencia absoluta de interrupciones
-mientras se elimina un Pod; demuestra recuperación y disponibilidad posterior.
+El script de Kubernetes guarda transcripción, UIDs, conteos por Pod, identidad del
+modelo y estado de cinco réplicas. `recovery.py` registra POST antes, durante y después
+de eliminar un Pod y exige cero fallos observados. Si falla, conserva el resultado rojo;
+una muestra finita no demuestra ausencia absoluta de interrupciones.
 Capturar personalmente: MLflow comparando cinco runs; Registry con versiones y alias;
 Pods Ready; salida de balanceo; eliminación y nuevo UID; cinco réplicas;
 web mostrando resultado y pestaña Network con POST `/predict` al puerto 30080.
@@ -99,6 +99,9 @@ kubectl -n churn logs deployment/churn-api --tail=80
 ```
 
 El control `data` devuelve código 2 por una alerta esperada; `concept` también.
+El wrapper ejecuta además `src.temporal normal` y `src.temporal concept`, genera las
+gráficas de ROC AUC y verifica alarma tras tres lotes etiquetados con caída >=0,10.
+Ver `docs/MONITOREO.md` para umbrales y retraso de etiquetas.
 El escenario normal debe devolver 0. Una alerta detectada correctamente es éxito del
 detector y fallo intencional de la compuerta de datos/modelo.
 
@@ -149,3 +152,11 @@ En otra terminal: `$env:MLFLOW_TRACKING_URI = 'http://127.0.0.1:5000'` y luego
 `pytest -v`. Los CSV de referencia/actual están incluidos en el ZIP de entrega,
 pero no en el bundle Git: el entrenamiento los regenera. Para comprobar despliegue
 se recomienda entrenar nuevamente contra el Registry del clúster usando deploy.ps1.
+
+## Presentación y comprobaciones oficiales
+
+`docs/DEFENSA.md` contiene el recorrido de MLflow: filtro, orden por ROC AUC,
+comparación de runs y alias del Registry. `docs/RESPONSABILIDADES.md` contiene la tabla
+de trabajo individual. `docs/MONITOREO.md` explica el baseline train, KS, chi-cuadrado,
+la alarma temporal y las etiquetas retrasadas. `docs/DESPLIEGUE_REAL.md` se genera
+solamente después de verificar el clúster y registra versión/run realmente desplegados.

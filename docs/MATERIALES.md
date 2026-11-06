@@ -2,7 +2,7 @@
 
 Se inspeccionaron los tres ZIP y se extrajo por OCR el contenido de las 55 diapositivas
 (Clase 5: 18; Clase 6: 21; Clase 7: 16). El OCR contiene errores de reconocimiento;
-no reemplaza los originales. No se encontró el enunciado oficial como archivo adjunto.
+no reemplaza los originales. El enunciado oficial se recibió posteriormente como texto y se conserva en ENUNCIADO_OFICIAL.md.
 
 | Fuente | Uso en esta implementación | Ajuste necesario |
 |---|---|---|

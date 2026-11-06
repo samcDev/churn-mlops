@@ -1,107 +1,90 @@
-Traceback (most recent call last):
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 239, in _new_conn
-    sock = connection.create_connection(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/util/connection.py", line 85, in create_connection
-    raise err
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/util/connection.py", line 73, in create_connection
-    sock.connect(sa)
-ConnectionRefusedError: [Errno 111] Connection refused
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 793, in urlopen
-    response = self._make_request(
-               ^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 499, in _make_request
-    conn.request(
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 567, in request
-    self.endheaders()
-  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/http/client.py", line 1381, in endheaders
-    self._send_output(message_body, encode_chunked=encode_chunked)
-  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/http/client.py", line 1141, in _send_output
-    self.send(msg)
-  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/http/client.py", line 1085, in send
-    self.connect()
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 398, in connect
-    self.sock = self._new_conn()
-                ^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 254, in _new_conn
-    raise NewConnectionError(
-urllib3.exceptions.NewConnectionError: HTTPConnection(host='127.0.0.1', port=5000): Failed to establish a new connection: [Errno 111] Connection refused
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/requests/adapters.py", line 667, in send
-    resp = conn.urlopen(
-           ^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 886, in urlopen
-    return self.urlopen(
-           ^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 886, in urlopen
-    return self.urlopen(
-           ^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 886, in urlopen
-    return self.urlopen(
-           ^^^^^^^^^^^^^
-  [Previous line repeated 4 more times]
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 847, in urlopen
-    retries = retries.increment(
-              ^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/urllib3/util/retry.py", line 555, in increment
-    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /api/2.0/mlflow/experiments/get-by-name?experiment_name=telco-churn-individual (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=5000): Failed to establish a new connection: [Errno 111] Connection refused"))
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/utils/rest_utils.py", line 184, in http_request
-    return _get_http_response_with_retries(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/utils/request_utils.py", line 237, in _get_http_response_with_retries
-    return session.request(method, url, allow_redirects=allow_redirects, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/requests/sessions.py", line 589, in request
-    resp = self.send(prep, **send_kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/requests/sessions.py", line 703, in send
-    r = adapter.send(request, **kwargs)
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/requests/adapters.py", line 700, in send
-    raise ConnectionError(e, request=request)
-requests.exceptions.ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /api/2.0/mlflow/experiments/get-by-name?experiment_name=telco-churn-individual (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=5000): Failed to establish a new connection: [Errno 111] Connection refused"))
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/workspace/scratch/573cfa35567e/churn-mlops/src/train.py", line 57, in <module>
-    if __name__=='__main__': main()
-                             ^^^^^^
-  File "/workspace/scratch/573cfa35567e/churn-mlops/src/train.py", line 17, in main
-    mlflow.set_experiment('telco-churn-individual')
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/tracking/fluent.py", line 157, in set_experiment
-    experiment = client.get_experiment_by_name(experiment_name)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/tracking/client.py", line 1703, in get_experiment_by_name
-    return self._tracking_client.get_experiment_by_name(name)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/tracking/_tracking_service/client.py", line 595, in get_experiment_by_name
-    return self.store.get_experiment_by_name(name)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/store/tracking/rest_store.py", line 641, in get_experiment_by_name
-    response_proto = self._call_endpoint(GetExperimentByName, req_body)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/store/tracking/rest_store.py", line 90, in _call_endpoint
-    return call_endpoint(self.get_host_creds(), endpoint, method, json_body, response_proto)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/utils/rest_utils.py", line 397, in call_endpoint
-    response = http_request(**call_kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/utils/rest_utils.py", line 207, in http_request
-    raise MlflowException(f"API request to {url} failed with exception {e}")
-mlflow.exceptions.MlflowException: API request to http://127.0.0.1:5000/api/2.0/mlflow/experiments/get-by-name failed with exception HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /api/2.0/mlflow/experiments/get-by-name?experiment_name=telco-churn-individual (Caused by NewConnectionError("HTTPConnection(host='127.0.0.1', port=5000): Failed to establish a new connection: [Errno 111] Connection refused"))
+2026/11/05 22:41:36 INFO mlflow.tracking.fluent: Experiment with name 'telco-churn-individual' does not exist. Creating a new experiment.
+/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/types/utils.py:452: UserWarning: Hint: Inferred schema contains integer column(s). Integer columns in Python cannot represent missing values. If your input data contains missing values at inference time, it will be encoded as floats and will cause a schema enforcement error. The best way to avoid this problem is to infer the model schema based on a realistic data sample (training dataset) that includes missing values. Alternatively, you can declare integer columns as doubles (float64) whenever these columns may have missing values. See `Handling Integers With Missing Values <https://www.mlflow.org/docs/latest/models.html#handling-integers-with-missing-values>`_ for more details.
+  warnings.warn(
+Successfully registered model 'telco-churn'.
+2026/11/05 22:41:40 INFO mlflow.store.model_registry.abstract_store: Waiting up to 300 seconds for model version to finish creation. Model name: telco-churn, version 1
+Created version '1' of model 'telco-churn'.
+/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/types/utils.py:452: UserWarning: Hint: Inferred schema contains integer column(s). Integer columns in Python cannot represent missing values. If your input data contains missing values at inference time, it will be encoded as floats and will cause a schema enforcement error. The best way to avoid this problem is to infer the model schema based on a realistic data sample (training dataset) that includes missing values. Alternatively, you can declare integer columns as doubles (float64) whenever these columns may have missing values. See `Handling Integers With Missing Values <https://www.mlflow.org/docs/latest/models.html#handling-integers-with-missing-values>`_ for more details.
+  warnings.warn(
+Registered model 'telco-churn' already exists. Creating a new version of this model...
+2026/11/05 22:41:44 INFO mlflow.store.model_registry.abstract_store: Waiting up to 300 seconds for model version to finish creation. Model name: telco-churn, version 2
+Created version '2' of model 'telco-churn'.
+/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/types/utils.py:452: UserWarning: Hint: Inferred schema contains integer column(s). Integer columns in Python cannot represent missing values. If your input data contains missing values at inference time, it will be encoded as floats and will cause a schema enforcement error. The best way to avoid this problem is to infer the model schema based on a realistic data sample (training dataset) that includes missing values. Alternatively, you can declare integer columns as doubles (float64) whenever these columns may have missing values. See `Handling Integers With Missing Values <https://www.mlflow.org/docs/latest/models.html#handling-integers-with-missing-values>`_ for more details.
+  warnings.warn(
+Registered model 'telco-churn' already exists. Creating a new version of this model...
+2026/11/05 22:41:47 INFO mlflow.store.model_registry.abstract_store: Waiting up to 300 seconds for model version to finish creation. Model name: telco-churn, version 3
+Created version '3' of model 'telco-churn'.
+/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/types/utils.py:452: UserWarning: Hint: Inferred schema contains integer column(s). Integer columns in Python cannot represent missing values. If your input data contains missing values at inference time, it will be encoded as floats and will cause a schema enforcement error. The best way to avoid this problem is to infer the model schema based on a realistic data sample (training dataset) that includes missing values. Alternatively, you can declare integer columns as doubles (float64) whenever these columns may have missing values. See `Handling Integers With Missing Values <https://www.mlflow.org/docs/latest/models.html#handling-integers-with-missing-values>`_ for more details.
+  warnings.warn(
+Registered model 'telco-churn' already exists. Creating a new version of this model...
+2026/11/05 22:41:50 INFO mlflow.store.model_registry.abstract_store: Waiting up to 300 seconds for model version to finish creation. Model name: telco-churn, version 4
+Created version '4' of model 'telco-churn'.
+/workspace/scratch/573cfa35567e/.venv/lib/python3.12/site-packages/mlflow/types/utils.py:452: UserWarning: Hint: Inferred schema contains integer column(s). Integer columns in Python cannot represent missing values. If your input data contains missing values at inference time, it will be encoded as floats and will cause a schema enforcement error. The best way to avoid this problem is to infer the model schema based on a realistic data sample (training dataset) that includes missing values. Alternatively, you can declare integer columns as doubles (float64) whenever these columns may have missing values. See `Handling Integers With Missing Values <https://www.mlflow.org/docs/latest/models.html#handling-integers-with-missing-values>`_ for more details.
+  warnings.warn(
+Registered model 'telco-churn' already exists. Creating a new version of this model...
+2026/11/05 22:41:53 INFO mlflow.store.model_registry.abstract_store: Waiting up to 300 seconds for model version to finish creation. Model name: telco-churn, version 5
+Created version '5' of model 'telco-churn'.
+🏃 View run logistic-C-0.01 at: http://127.0.0.1:5000/#/experiments/1/runs/9f10e8580d1049368a8a6bacdc1aa9c8
+🧪 View experiment at: http://127.0.0.1:5000/#/experiments/1
+🏃 View run logistic-C-0.1 at: http://127.0.0.1:5000/#/experiments/1/runs/b84a746687a548e99fb79c95a2d8b43e
+🧪 View experiment at: http://127.0.0.1:5000/#/experiments/1
+🏃 View run logistic-C-1.0 at: http://127.0.0.1:5000/#/experiments/1/runs/ce9375fbb6ec47d6bd601275a3752f4a
+🧪 View experiment at: http://127.0.0.1:5000/#/experiments/1
+🏃 View run logistic-C-10.0 at: http://127.0.0.1:5000/#/experiments/1/runs/73dacc6ce01d45859fe4fbea8b1335db
+🧪 View experiment at: http://127.0.0.1:5000/#/experiments/1
+🏃 View run logistic-C-100.0 at: http://127.0.0.1:5000/#/experiments/1/runs/e5da9ac9d8b74b2b9799d45217ea24d3
+🧪 View experiment at: http://127.0.0.1:5000/#/experiments/1
+🏃 View run logistic-C-10.0 at: http://127.0.0.1:5000/#/experiments/1/runs/73dacc6ce01d45859fe4fbea8b1335db
+🧪 View experiment at: http://127.0.0.1:5000/#/experiments/1
+{
+  "runs": [
+    {
+      "run_id": "9f10e8580d1049368a8a6bacdc1aa9c8",
+      "version": "1",
+      "C": 0.01,
+      "val_roc_auc": 0.8249502699630576
+    },
+    {
+      "run_id": "b84a746687a548e99fb79c95a2d8b43e",
+      "version": "2",
+      "C": 0.1,
+      "val_roc_auc": 0.8288382546694567
+    },
+    {
+      "run_id": "ce9375fbb6ec47d6bd601275a3752f4a",
+      "version": "3",
+      "C": 1.0,
+      "val_roc_auc": 0.8303934485520164
+    },
+    {
+      "run_id": "73dacc6ce01d45859fe4fbea8b1335db",
+      "version": "4",
+      "C": 10.0,
+      "val_roc_auc": 0.830571701671446
+    },
+    {
+      "run_id": "e5da9ac9d8b74b2b9799d45217ea24d3",
+      "version": "5",
+      "C": 100.0,
+      "val_roc_auc": 0.8305587847787335
+    }
+  ],
+  "selected": {
+    "run_id": "73dacc6ce01d45859fe4fbea8b1335db",
+    "version": "4",
+    "C": 10.0,
+    "val_roc_auc": 0.830571701671446
+  },
+  "test": {
+    "test_roc_auc": 0.8357307086207342,
+    "test_f1": 0.5899280575539568,
+    "test_accuracy": 0.7977288857345636
+  },
+  "dataset_sha256": "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91",
+  "split_seed": 42,
+  "split_sizes": [
+    4225,
+    1409,
+    1409
+  ]
+}

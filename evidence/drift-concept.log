@@ -1,42 +1,60 @@
 {
   "data_drift": false,
   "concept_drift": true,
+  "concept_signal_scope": "single-batch auxiliary log-loss signal; temporal ROC AUC rule is authoritative for retraining",
+  "reference_rows": 4225,
+  "performance_reference_rows": 1409,
   "reference_log_loss": 0.4375785666991168,
   "current_log_loss": 2.0754892528563382,
   "loss_delta": 1.6379106861572215,
   "features": {
     "tenure": {
-      "ks": 0.0383250532292406,
-      "p": 0.25203662174795816,
+      "test": "KS",
+      "ks": 0.020668651651891266,
+      "p": 0.7476164159905037,
       "drift": false
     },
     "MonthlyCharges": {
-      "ks": 0.050390347764371894,
-      "p": 0.055864083152065536,
+      "test": "KS",
+      "ks": 0.02669096803725837,
+      "p": 0.42916990320129805,
       "drift": false
     },
     "TotalCharges": {
-      "ks": 0.04565963241950084,
-      "p": 0.10184839976701379,
+      "test": "KS",
+      "ks": 0.02939781887150308,
+      "p": 0.31877323680562325,
       "drift": false
     },
     "Contract": {
-      "tv": 0.007806955287437883,
+      "test": "chi-square homogeneity",
+      "chi2": 0.519888445818789,
+      "p": 0.7710945940171545,
+      "expected_counts_valid": true,
+      "tv": 0.008183234574019094,
       "drift": false
     },
     "InternetService": {
-      "tv": 0.0191625266146203,
+      "test": "chi-square homogeneity",
+      "chi2": 0.2984689256588686,
+      "p": 0.8613671326461164,
+      "expected_counts_valid": true,
+      "tv": 0.006522398276506469,
       "drift": false
     },
     "PaymentMethod": {
-      "tv": 0.017743080198722505,
+      "test": "chi-square homogeneity",
+      "chi2": 0.2986568023711036,
+      "p": 0.9602809013001623,
+      "expected_counts_valid": true,
+      "tv": 0.006837532179018224,
       "drift": false
     }
   },
   "thresholds": {
-    "ks_alpha": 0.016666666666666666,
+    "feature_alpha": 0.008333333333333333,
     "ks_min": 0.1,
     "tv_min": 0.15,
-    "loss_delta": 0.1
+    "auxiliary_loss_delta": 0.1
   }
 }

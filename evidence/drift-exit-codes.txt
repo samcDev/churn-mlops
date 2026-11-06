@@ -1,3 +1,5 @@
 normal exit=0
 data exit=2
 concept exit=2
+temporal-normal exit=0
+temporal-concept exit=2

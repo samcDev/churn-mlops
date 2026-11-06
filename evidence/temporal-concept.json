@@ -1,0 +1,125 @@
+{
+  "mode": "concept",
+  "baseline_roc_auc": 0.830571701671446,
+  "metric": "roc_auc",
+  "drop_threshold": 0.1,
+  "consecutive_labeled_batches": 3,
+  "simulated_time": true,
+  "disjoint_batches": true,
+  "alarm": true,
+  "first_alarm_batch": 7,
+  "batches": [
+    {
+      "batch": 1,
+      "rows": 141,
+      "labels_available": true,
+      "inverted_labels": false,
+      "roc_auc": 0.8895530145530146,
+      "breach": false,
+      "streak": 0,
+      "alarm": false,
+      "status": "evaluated"
+    },
+    {
+      "batch": 2,
+      "rows": 141,
+      "labels_available": true,
+      "inverted_labels": false,
+      "roc_auc": 0.8017151767151767,
+      "breach": false,
+      "streak": 0,
+      "alarm": false,
+      "status": "evaluated"
+    },
+    {
+      "batch": 3,
+      "rows": 141,
+      "labels_available": true,
+      "inverted_labels": false,
+      "roc_auc": 0.8581081081081081,
+      "breach": false,
+      "streak": 0,
+      "alarm": false,
+      "status": "evaluated"
+    },
+    {
+      "batch": 4,
+      "rows": 141,
+      "labels_available": true,
+      "inverted_labels": false,
+      "roc_auc": 0.795997920997921,
+      "breach": false,
+      "streak": 0,
+      "alarm": false,
+      "status": "evaluated"
+    },
+    {
+      "batch": 5,
+      "rows": 141,
+      "labels_available": true,
+      "inverted_labels": true,
+      "roc_auc": 0.20867983367983367,
+      "breach": true,
+      "streak": 1,
+      "alarm": false,
+      "status": "evaluated"
+    },
+    {
+      "batch": 6,
+      "rows": 141,
+      "labels_available": true,
+      "inverted_labels": true,
+      "roc_auc": 0.12416964741951968,
+      "breach": true,
+      "streak": 2,
+      "alarm": false,
+      "status": "evaluated"
+    },
+    {
+      "batch": 7,
+      "rows": 141,
+      "labels_available": true,
+      "inverted_labels": true,
+      "roc_auc": 0.16836995401124172,
+      "breach": true,
+      "streak": 3,
+      "alarm": true,
+      "status": "evaluated"
+    },
+    {
+      "batch": 8,
+      "rows": 141,
+      "labels_available": true,
+      "inverted_labels": true,
+      "roc_auc": 0.1811446090955544,
+      "breach": true,
+      "streak": 4,
+      "alarm": true,
+      "status": "evaluated"
+    },
+    {
+      "batch": 9,
+      "rows": 141,
+      "labels_available": true,
+      "inverted_labels": true,
+      "roc_auc": 0.15738375063873278,
+      "breach": true,
+      "streak": 5,
+      "alarm": true,
+      "status": "evaluated"
+    },
+    {
+      "batch": 10,
+      "rows": 140,
+      "labels_available": true,
+      "inverted_labels": true,
+      "roc_auc": 0.14169509315140377,
+      "breach": true,
+      "streak": 6,
+      "alarm": true,
+      "status": "evaluated"
+    }
+  ],
+  "version": "4",
+  "run_id": "73dacc6ce01d45859fe4fbea8b1335db"
+}

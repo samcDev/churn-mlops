@@ -1,4 +1,5 @@
 {
+  "mlflow_ui_http_status": 200,
   "environment": "local Linux HTTP; not Kubernetes",
   "prediction_status": 200,
   "prediction": {
@@ -8,7 +9,7 @@
     "name": "telco-churn",
     "alias": "production",
     "version": "4",
-    "run_id": "03b7addcc4ce4e40954a0b404dccedad",
+    "run_id": "73dacc6ce01d45859fe4fbea8b1335db",
     "pod": "288bfcebb9d9"
   },
   "invalid_status": 422,

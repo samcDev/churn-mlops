@@ -1,30 +1,39 @@
-# Matriz provisional de cumplimiento
+# Matriz de cumplimiento del enunciado oficial
 
-Base: los 13 requisitos del mensaje del usuario, no una rúbrica oficial disponible.
-Estados: V = ejecutado aquí; I/P = implementado, pendiente en Windows; P = pendiente.
-No se asignan porcentajes ni puntaje extra sin el enunciado oficial.
+Fuente: ENUNCIADO_OFICIAL.md, texto recibido en el chat. V = verificado en Linux;
+I/P = implementado, pendiente de ejecución Windows/Docker/Kubernetes; P = pendiente.
+No se asigna una nota ni se dan por obtenidos los 15 puntos extra.
 
-| ID | Requisito | Implementación y criterio verificable | Evidencia / estado |
+| Cláusula | Requisito | Solución / evidencia | Estado |
 |---|---|---|---|
-| 1 | Analizar enunciado y matriz | Matriz trazable; falta archivo oficial | Esta matriz; P de contraste oficial |
-| 2 | Revisar clases y ejemplos | Revisión de 55 diapositivas y tres ZIP | MATERIALES.md, clases-ocr.txt; V |
-| 3 | Repositorio profesional | src/tests/scripts/k8s/docs/evidence/CI, Git real | Repositorio y bundle; V |
-| 4 | Entrenamiento reproducible, cinco experimentos | Cinco configuraciones/runs en un experimento; semilla, split, hash y lock | training.json, training.log; V, confirmar terminología oficial |
-| 5 | Varias versiones y alias | Cinco versiones MLflow; v4 con alias production en ejecución incluida | training.json y snapshot Registry; V |
-| 6 | FastAPI carga registrado | Resuelve alias y carga versión de Registry; POST predict | pytest.log, http-smoke.json; V |
-| 7 | Dockerfile y dependencias | Dos Dockerfiles; lock transitivo; usuario API sin root | I/P: sin daemon Docker aquí |
-| 8 | Kubernetes >=3 réplicas y Service | API 3 réplicas, probes, recursos, Service NodePort | stack.yaml; parseo V, despliegue I/P |
-| 9 | Balanceo, recuperación y escala | POST a NodePort; >=3/5 Pods; delete y UID nuevo Ready; 3→5→3 | balance.py, verify-k8s.ps1; I/P |
-| 10 | Data/concept drift normal/alterado | KS + TV + pérdida logarítmica; umbrales y códigos explícitos | drift-*.json, drift-exit-codes.txt; V |
-| 11 | Web real sobre K8s (+15 por confirmar) | Formulario fetch same-origin /predict, expone versión/Pod/run | HTML y HTTP 200 V; navegador sobre K8s I/P |
-| 12 | Pruebas, documentación e informe | Nueve pruebas, HTTP real, informe y guía PowerShell | pytest.xml, http-smoke.json, docs; V; evidencias K8s pendientes |
-| 13 | Historial individual y defensa | Commits reales, atribución de asistencia, guion | Git, DEFENSA.md; V; publicación remota P |
+| 2 | Modalidad individual y reparto | RESPONSABILIDADES.md; historial real, asistencia declarada | V; completar identificación académica antes de entregar |
+| 2 | Git obligatorio | .git y repository.bundle con commits reales | V local; URL GitHub P |
+| 2 | Defensa individual de todo el proyecto | DEFENSA.md con demostración y preguntas | Preparada; defensa P |
+| 3.1 | Problema con varias entradas, dataset público recomendado >=1000 | IBM Telco: 7.043 filas, seis predictores | V |
+| 3.2 | Entrenamiento reproducible y split documentado | Semilla 42, split 60/20/20, Pipeline, hash y lock | V |
+| 3.2 | >=5 ejecuciones comparables con distintos hiperparámetros | Cinco runs de C=0.01/0.1/1/10/100 sobre mismo split | V; cinco runs cumplen el texto oficial |
+| 3.3 | Experimentación y versionado en MLflow | Tracking HTTP, métricas, parámetros, firma y artifacts | V |
+| 3.3.2 | Nombre estable y varias versiones | Registry telco-churn, cinco versiones | V |
+| 3.3.2 | Referencia explícita de producción | production → versión numérica; API resuelve alias y carga esa versión | V local; consumo en clúster I/P |
+| 3.3.2 | Arquitectura identifica versión y run | ARQUITECTURA.md y training.json; DESPLIEGUE_REAL.md se genera tras K8s | V local; correspondencia K8s I/P |
+| 3.4 | UI MLflow operativa y demostración en vivo | Servidor preparado, snapshot, guion de filtro/orden/comparación/Registry | HTTP del servidor V; interacción y defensa local P |
+| 4 | Dockerfile propio | Dockerfile API y Dockerfile.mlflow | I/P construcción real |
+| 4 | Dependencias fijadas, incluido MLflow | requirements-lock.txt y Python base fijado | V instalación Linux; Docker/Windows I/P |
+| 4 | Contenedor levanta inferencia sin intervención | CMD Uvicorn, carga de Registry al inicio, sin archivos modelo manuales | I/P ejecución de contenedor |
+| 5.2 | >=3 réplicas Running simultáneamente | Deployment replicas=3; chequeos Running y Ready | I/P |
+| 5.2 | Tráfico entre Pods distintos por Service | POST NodePort con conexiones nuevas, identidad y versión/run por Pod | I/P; exige >=3 identidades, cero errores |
+| 5.2 | Autorreparación sin dejar de responder | recovery.py: POST antes/durante/después de delete, nuevo UID Ready | I/P; criterio cero solicitudes fallidas observadas |
+| 5.2 | Escalado y efecto | 3→5→3; cinco Ready y POST atendidos por cinco Pods | I/P |
+| 6.1 | Cada entrada contra baseline de entrenamiento | reference.csv contiene 4.225 filas train; seis variables comparadas | V |
+| 6.1 | Prueba por tipo de variable y justificación | KS numéricas; chi-cuadrado categóricas más distancia TV | V; MONITOREO.md |
+| 6.1 | Umbrales y procedencia | Bonferroni 0.05/6; KS>0.1; TV>0.15, tolerancias didácticas previas | V; límites documentados |
+| 6.1 | Verde normal y rojo perturbado | drift normal=0; data=2; pruebas categóricas y numéricas | V; logs y JSON |
+| 6.2 | Cambiar relación entrada/objetivo | Inversión de etiquetas desde lote 5 manteniendo entradas | V, simulación explícita |
+| 6.2 | Métrica principal por lotes y gráfica temporal | ROC AUC en diez lotes disjuntos, CSV/JSON/PNG | V; tiempo simulado |
+| 6.2 | Caída sostenida y criterio de reentrenamiento | ROC AUC cae >=0.10 durante 3 lotes etiquetados consecutivos | V; alarma lote 7 en escenario alterado |
+| 6.2 | Retraso de etiquetas | Sin etiquetas: no calcular desempeño; cola de conciliación; vigilar entradas/API | V diseño y prueba lógica; MONITOREO.md |
+| 7 | UI consume API real en Kubernetes | HTML fetch /predict same-origin, muestra versión/run/Pod | HTTP Linux V; navegador/Network K8s I/P |
+| Entrega | Enlace repo y ZIP con documentación/evidencias | ZIP y bundle presentes | ZIP V; URL GitHub y evidencia K8s P |
 
-## Criterios de aceptación locales pendientes
-
-- `deploy.ps1` finaliza con tres Pods Ready y modelo descargado por HTTP desde Registry.
-- `verify-k8s.ps1` finaliza sin excepción y los JSON contienen >=3 y >=5 identidades.
-- `recovery.json` prueba UID distinto, Ready y tres réplicas recuperadas.
-- Captura auténtica de la web y Network demuestra POST a localhost:30080/predict.
-- URL GitHub real, workflow CI verde y ZIP actualizado con evidencias personales.
-- Contrastar cada punto y formato de entrega contra el enunciado oficial faltante.
+El proyecto base no se declara completo hasta ejecutar los puntos Docker/Kubernetes.
+La web ya está implementada, pero los extras dependen de cerrar primero el proyecto base.

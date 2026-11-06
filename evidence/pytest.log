@@ -5,17 +5,21 @@ rootdir: /workspace/scratch/573cfa35567e/churn-mlops
 configfile: pytest.ini
 testpaths: tests
 plugins: anyio-4.16.0
-collecting ... collected 9 items
+collecting ... collected 13 items
 
-tests/test_system.py::test_public_dataset PASSED                         [ 11%]
-tests/test_system.py::test_registry_versions PASSED                      [ 22%]
-tests/test_system.py::test_api_real_registry PASSED                      [ 33%]
-tests/test_system.py::test_drift_scenarios PASSED                        [ 44%]
-tests/test_system.py::test_invalid_input_contract[tenure-101] PASSED     [ 55%]
-tests/test_system.py::test_invalid_input_contract[MonthlyCharges--1] PASSED [ 66%]
-tests/test_system.py::test_invalid_input_contract[Contract-unknown] PASSED [ 77%]
-tests/test_system.py::test_invalid_input_contract[unexpected-1] PASSED   [ 88%]
-tests/test_system.py::test_categorical_drift PASSED                      [100%]
+tests/test_system.py::test_public_dataset PASSED                         [  7%]
+tests/test_system.py::test_registry_versions PASSED                      [ 15%]
+tests/test_system.py::test_api_real_registry PASSED                      [ 23%]
+tests/test_system.py::test_drift_scenarios PASSED                        [ 30%]
+tests/test_system.py::test_invalid_input_contract[tenure-101] PASSED     [ 38%]
+tests/test_system.py::test_invalid_input_contract[MonthlyCharges--1] PASSED [ 46%]
+tests/test_system.py::test_invalid_input_contract[Contract-unknown] PASSED [ 53%]
+tests/test_system.py::test_invalid_input_contract[unexpected-1] PASSED   [ 61%]
+tests/test_system.py::test_categorical_drift PASSED                      [ 69%]
+tests/test_system.py::test_training_drift_baseline PASSED                [ 76%]
+tests/test_system.py::test_transient_drop_does_not_trigger_retraining PASSED [ 84%]
+tests/test_system.py::test_sustained_drop_and_delayed_labels PASSED      [ 92%]
+tests/test_system.py::test_temporal_real_registry PASSED                 [100%]
 
 =============================== warnings summary ===============================
 ../.venv/lib/python3.12/site-packages/mlflow/utils/pydantic_utils.py:33
@@ -36,4 +40,4 @@ tests/test_system.py::test_registry_versions
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 - generated xml file: /workspace/scratch/573cfa35567e/churn-mlops/evidence/pytest.xml -
-======================== 9 passed, 4 warnings in 3.75s =========================
+======================== 13 passed, 4 warnings in 4.44s ========================

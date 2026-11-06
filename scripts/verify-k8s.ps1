@@ -25,5 +25,7 @@ try {
   Copy-Item evidence/balance.json evidence/balance-five.json
   K -n churn scale deployment/churn-api --replicas=3
   K -n churn rollout status deployment/churn-api --timeout=300s
+  python scripts/record-deployment.py
+  if ($LASTEXITCODE -ne 0) { throw 'Could not record deployed model identity' }
   K -n churn get endpointslices -l kubernetes.io/service-name=churn-api -o yaml
 } finally { Stop-Transcript }

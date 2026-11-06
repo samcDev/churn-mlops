@@ -1,50 +1,50 @@
-# Predicción de abandono de clientes mediante un flujo MLOps reproducible
+# Predicción de abandono de clientes con un flujo MLOps reproducible y observable
 
-**Maestría en Ciencia de Datos e Inteligencia Artificial — UAGRM**  
-**Módulo:** MLOps y Puesta en Producción  
-**Modalidad:** Individual, con asistencia de IA declarada en la implementación  
-**Fecha de verificación:** 5 de noviembre de 2026 (Bolivia)  
-**Estado:** Entrenamiento, Registry, API y drift verificados; Docker/Kubernetes y
-la interfaz sobre el clúster pendientes de verificación local. Identificación del
-estudiante por completar antes de entrega: el titular de este chat no garantiza
-la identidad de quien cursa el módulo.
+Maestría en Ciencia de Datos e Inteligencia Artificial — UAGRM  
+Módulo: MLOps y Puesta en Producción  
+Modalidad: individual, con asistencia de IA declarada  
+Verificación: 5 de noviembre de 2026, Bolivia  
+Estado: modelo, Registry, API y drift ejecutados en Linux; Docker/Kubernetes y
+consumo web sobre clúster pendientes de ejecución en Windows.
 
-## Resumen
+## 1. Resumen y objetivo
 
-Se construyó un repositorio ejecutable para predecir churn con 7.043 registros del
-benchmark IBM Telco. El flujo versiona datos y código, evalúa cinco configuraciones
-de regresión logística, registra sus pipelines en MLflow y promueve una versión
-mediante alias. FastAPI consume el Registry real. Se implementaron contenedores,
-un despliegue Kubernetes de tres réplicas y pruebas automatizadas de distribución
-de solicitudes, recuperación y escalamiento. En el entorno disponible se ejecutaron
-nueve pruebas de integración, solicitudes HTTP reales y tres escenarios de drift.
-No se presentan resultados Kubernetes ni capturas que no hayan sido ejecutados.
+Se implementó un repositorio funcional que lleva un clasificador de abandono desde
+el entrenamiento hasta un servicio trazable. El énfasis, conforme al enunciado, es
+la reproducibilidad, el empaquetado, la disponibilidad y la detección de degradación,
+no alcanzar una exactitud máxima. Se usaron 7.043 registros del benchmark público
+IBM Telco y seis predictores. Cinco configuraciones comparables se registraron en
+MLflow, con cinco versiones y un alias de producción explícito. FastAPI carga el
+modelo por esa referencia, sin archivos de modelo administrados manualmente.
 
-## Objetivo y alcance
+La implementación contiene Dockerfiles propios, manifiestos Kubernetes con tres
+réplicas, verificadores de balanceo/autorreparación/escala y una interfaz HTML que
+consume la API. Los componentes no ejecutados en el clúster se identifican como
+pendientes; no se presentan capturas ficticias ni resultados supuestos. Trece
+pruebas automatizadas pasaron en este entorno. Se ejecutó además inferencia por
+HTTP y escenarios de drift con estados de éxito y fallo intencional.
 
-El objetivo es llevar un modelo desde el entrenamiento hasta una API reproducible
-y observable, con trazabilidad entre datos, hiperparámetros, run y versión. Los datos
-son un benchmark educativo, sin relación con una empresa del usuario. La clasificación
-podría apoyar priorización de retención; no determina el efecto causal de una campaña.
-La matriz es provisional porque no se adjuntó el documento oficial del proyecto final.
+## 2. Datos y metodología
 
-## Metodología
+Fuente: IBM, `telco-customer-churn-on-icp4d`, CSV versionado incluido en el repositorio.
+SHA256: `16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91`.
+Es un benchmark educativo y no representa datos de la empresa del usuario.
 
-Se eligieron seis predictores: tenure, MonthlyCharges, TotalCharges, Contract,
-InternetService y PaymentMethod. Se excluyen customerID y Churn de las entradas.
-TotalCharges se convierte a numérico y sus blancos se imputan con mediana aprendida
-solo de entrenamiento. Variables numéricas se estandarizan y categóricas se codifican
-mediante one-hot. Todos los pasos forman parte del Pipeline registrado.
+Predictores: tenure, MonthlyCharges, TotalCharges, Contract, InternetService y
+PaymentMethod. El objetivo Churn se convierte Yes→1, No→0. Se excluye customerID.
+Los blancos de TotalCharges se convierten a NaN; el pipeline imputa mediana y
+estandariza los números, y aplica one-hot a las categorías. Se ajusta solo con train.
+El esquema de la API limita rangos, categorías y valores finitos, y prohíbe campos extra.
 
-La partición es estratificada con semilla 42: 4.225 casos para entrenamiento,
-1.409 para validación y 1.409 para prueba. Se mantiene el mismo split para las cinco
-configuraciones de C. La selección utiliza exclusivamente ROC AUC de validación;
-el test del ganador evalúa una compuerta mínima de AUC >= 0,75. No se reentrena sobre
-validación después de escoger el ganador, por lo que el artefacto evaluado es exactamente
-el promovido. Esta es una selección inicial: no se implementa un duelo automatizado
-contra un campeón histórico para sucesivos datasets.
+La división estratificada usa semilla 42: train=4.225, validación=1.409 y test=1.409.
+Las cinco corridas comparten datos, split, algoritmo y preprocesamiento; varían C.
+La selección usa ROC AUC de validación, y el test se reserva para evaluar al ganador.
+El artefacto seleccionado no se reentrena sobre validación antes de servirlo, de modo
+que el modelo evaluado y promovido es el mismo. La compuerta inicial exige AUC test
+>=0,75. No se implementa un duelo automático contra un campeón histórico para
+promociones sucesivas ni optimización del umbral por costo de negocio.
 
-## Experimentos y resultados observados
+## 3. Experimentación, registro y trazabilidad
 
 | Versión | C | ROC AUC validación |
 |---|---|---|
@@ -54,104 +54,148 @@ contra un campeón histórico para sucesivos datasets.
 | 4 | 10.0 | 0.830572 |
 | 5 | 100.0 | 0.830559 |
 
-La versión seleccionada fue **4**, C = **10**, run
-`03b7addcc4ce4e40954a0b404dccedad`. Su alias es `production`.
-En MLflow, las configuraciones son cinco *runs* dentro de un *experimento*, siguiendo
-la taxonomía de la clase 5. Si la rúbrica exige cinco objetos Experiment separados,
-se deberá ajustar esa organización; no se presume que sean equivalentes.
+Los cinco runs pertenecen al experimento `telco-churn-individual`. Esto cumple el
+requisito oficial de **cinco ejecuciones**, sin necesitar cinco objetos Experiment.
+Cada run registra parámetros, métricas, firma, ejemplo, modelo, hash de datos,
+commit y hash del script de entrenamiento. MLflow administra la serialización y los artifacts.
+
+Modelo estable: `telco-churn`; alias: `production`; versión: **4**; run:
+`73dacc6ce01d45859fe4fbea8b1335db`. Esta identidad se comprobó en el servicio HTTP Linux.
+La identidad del despliegue Kubernetes se registrará mediante record-deployment.py,
+en DESPLIEGUE_REAL.md y deployed-model.json, al finalizar la prueba local.
 
 | Métrica de test | Resultado |
 |---|---|
 | ROC AUC | 0.835731 |
-| F1 con umbral 0,5 | 0.589928 |
+| F1, umbral 0,5 | 0.589928 |
 | Exactitud | 79.772889% |
 
-El AUC supera la compuerta de 0,75. F1 ≈ 0,59 muestra que el desempeño está lejos de
-ser perfecto; no se afirma aptitud comercial a partir de este benchmark. El umbral
-0,5 no ha sido optimizado por costos de retención, falsos positivos o pérdida de clientes.
+El AUC supera la compuerta didáctica; F1≈0,59 impide describir el modelo como perfecto.
+La UI de MLflow debe mostrarse en vivo: abrir experimento, filtrar y ordenar por
+val_roc_auc, comparar runs y abrir la versión de production. DEFENSA.md contiene
+los pasos. Que un endpoint HTTP sirva la página no sustituye la demostración en vivo.
 
-## Arquitectura de puesta en servicio
+## 4. Arquitectura y contenerización
 
-MLflow almacena metadatos en SQLite y artefactos mediante su servidor HTTP. Para el
-laboratorio Kubernetes se utiliza un PVC y una sola réplica de MLflow. Las tres
-réplicas FastAPI descargan el modelo desde ese servicio y guardan el objeto en memoria.
-Al inicio resuelven el alias y cargan la versión numérica resultante, evitando que la
-metadata reportada difiera de la versión realmente cargada si cambia el alias.
+El pipeline registrado es consumido por FastAPI, que resuelve production al iniciar
+y carga la versión numérica resultante. La respuesta expone clase, probabilidad,
+umbral, versión, run e identidad de Pod. No se gestiona un pickle/joblib suelto.
+Cambiar alias requiere renovar los procesos; no se promete cambio atómico entre réplicas.
 
-El endpoint valida el contrato y devuelve probabilidad, clase, umbral, versión, run e
-identidad de proceso/Pod. La web usa fetch con ruta relativa al mismo servidor.
-El Service expone NodePort 30080 y MLflow el 30500. El servicio de inferencia incluye
-probes de inicio, disponibilidad y vida, además de límites de CPU/memoria.
-El alias no se refresca automáticamente dentro de procesos vivos: se requiere rollout.
+El contenedor API tiene Dockerfile propio, Python base fijado y lock de dependencias
+que incluye MLflow 2.22.2. El CMD inicia Uvicorn; no precisa instalar librerías en el
+host. MLflow es un servicio separado con metadatos SQLite y artifacts en PVC,
+descargados por HTTP. La provisión inicial entrena/publica el modelo antes de esperar
+la API lista. No hay pasos manuales adicionales dentro de cada contenedor de inferencia.
+Docker no estaba disponible en el entorno de ejecución; construir y probar ambas
+imágenes sigue pendiente. La instalación inicial detectó una incompatibilidad con
+SQLAlchemy 2.1.8, corregida a 2.0.40 y recogida en el lock.
 
-## Monitoreo y drift
+## 5. Kubernetes y disponibilidad
 
-Se usan ventanas independientes: validación como referencia y test como lote actual.
-Para variables numéricas se exige p KS < 0,05/3 y distancia KS > 0,1. Para categorías
-se utiliza distancia de variación total > 0,15. La compuerta de desempeño se activa
-cuando la pérdida logarítmica actual excede la referencia en más de 0,10.
-Estos umbrales son explícitos y didácticos; no están calibrados para una operación real.
+Deployment API: tres réplicas; Service NodePort 30080, sin afinidad de sesión;
+MLflow NodePort 30500; probes startup/readiness/liveness; recursos CPU/memoria.
+Se añadió preStop de cinco segundos y grace period de treinta para favorecer drenaje.
 
-| Escenario ejecutado | Data drift | Señal de concept drift | Log loss actual | Código |
-|---|---|---|---|---|
-| Normal, etiquetas reales | No | No | 0,426171 | 0 |
-| MonthlyCharges +100, etiquetas conservadas | Sí | No | 0,433883 | 2 |
-| Etiquetas invertidas, mismas entradas | No | Sí | 2,075489 | 2 |
+Las cuatro demostraciones oficiales están automatizadas pero no ejecutadas aquí:
 
-La referencia tiene log loss 0,437579. El escenario de etiquetas invertidas es una
-simulación controlada de cambio en P(y|X), no un hallazgo en clientes reales. La caída
-de desempeño es una señal operativa compatible con concept drift; en producción
-no demuestra por sí sola su causa. Se requieren etiquetas reales, análisis y control
-de calidad. El desplazamiento de cargos es una perturbación deliberada para demostrar
-el detector; no prueba que toda modificación de esa variable preserve P(y|X).
-No se reentrena automáticamente con etiquetas manipuladas ni se promociona un modelo
-ante una mera alerta. La acción propuesta es investigar y validar datos nuevos.
+1. Tres Pods simultáneamente Running y Ready.
+2. Balanceo: inferencias POST sucesivas al Service, cada una con conexión nueva,
+   atendidas por al menos tres identidades. Se comprueba versión/run en cada respuesta.
+3. Autorreparación: solicitudes antes, durante y después de eliminar un Pod, UID nuevo
+   Running/Ready y recuperación a tres. Se exige cero solicitudes fallidas observadas.
+   El script conserva los fallos y no los oculta mediante reintentos. El muestreo finito
+   acredita la observación realizada, no uptime absoluto para todo instante posible.
+4. Escala 3→5→3, cinco réplicas Ready y cinco Pods efectivamente sirviendo inferencias.
 
-## Verificación y evidencias
+No se usa port-forward para acreditar balanceo, pues puede fijar un backend. No se
+exige reparto uniforme. La única réplica MLflow no ofrece alta disponibilidad de
+su plano de control: los procesos cargados pueden inferir sin ella, pero nuevos
+arranques la requieren. Producción demandaría DB y almacenamiento redundantes,
+autenticación y controles operativos adicionales.
 
-Nueve pruebas pytest pasaron, incluidas carga del Registry, inferencia y rechazos de
-entradas inválidas. Se ejecutó además Uvicorn por HTTP: POST /predict devolvió 200,
-entrada inválida devolvió 422 y la página HTML devolvió 200. Se confirmó que el
-formulario contiene fetch a /predict; su ejecución visual en navegador sobre Kubernetes
-queda pendiente. `pip check` no detectó dependencias incompatibles. Se parsearon seis
-recursos YAML y se comprobó el campo replicas=3, sin atribuirlo a validación de clúster.
+## 6. Data drift
 
-Los scripts locales comprueban balanceo mediante inferencias POST, nuevas conexiones
-y conteo por Pod, recuperación mediante UID y estado Ready, y escalamiento 3→5→3.
-No basta mostrar un Service. No se exige un reparto idéntico entre Pods y no se usa
-port-forward para demostrarlo. Estos scripts no fueron ejecutados en Windows en esta
-sesión: sus resultados están pendientes y deben añadirse a la entrega.
+Cada una de las seis variables se compara con el **train original de 4.225 filas**.
+Numéricas: KS, p<0,05/6 y distancia>0,10. Categóricas: chi-cuadrado de homogeneidad,
+p<0,05/6 y variación total>0,15. Se valida que las frecuencias esperadas sean >=5.
+KS no impone normalidad; chi-cuadrado compara proporciones sin ordenar categorías.
+Bonferroni controla la familia de seis pruebas. Las distancias mínimas reducen
+alertas por cambios diminutos en muestras grandes.
 
-## Reproducibilidad, límites y trabajo pendiente
+0,05 es una convención estadística; las magnitudes 0,10/0,15 son tolerancias didácticas
+fijadas previamente, no números derivados de una calibración industrial. Se explican
+sus límites y su calibración futura con históricos estables en MONITOREO.md.
+El lote normal pasó y el desplazamiento deliberado de MonthlyCharges +100 activó
+la alerta. Hay además una prueba automatizada de perturbación categórica.
 
-El dataset está versionado con SHA256, los parámetros y semilla se registran, se
-incluye un lock completo y un historial Git real. El entorno probado fue Linux con
-Python 3.12.14; los Dockerfiles especifican Python 3.12.10, por lo que la construcción
-y equivalencia entre entornos todavía requieren prueba en Docker Desktop. El lock
-incluye marcadores de plataforma para Gunicorn, que no se instala en Windows.
-Las advertencias de deprecación de MLflow/Pydantic observadas no impidieron las pruebas.
+## 7. Concept drift y evolución temporal
 
-La API carece de autenticación; los NodePorts se destinan al laboratorio local. SQLite
-y un PVC único no proporcionan alta disponibilidad de MLflow. No se implementan
-monitorización continua de negocio, A/B testing, canary ni renovación automática del
-modelo: son ampliaciones descritas en las clases, sin asumir obligatoriedad no verificada.
-CI está configurado pero no se ha ejecutado en GitHub; el despliegue local se automatiza
-mediante PowerShell. No se publicaron imágenes ni un repositorio remoto sin acceso a
-la cuenta del estudiante.
+La referencia de desempeño es validación independiente, AUC=0.830572,
+para evitar una referencia optimista calculada sobre train. Test se divide en diez
+lotes disjuntos estratificados. El control normal conserva etiquetas; la simulación
+concept invierte las etiquetas desde el lote 5, manteniendo las entradas de esos lotes.
+El eje temporal es el orden simulado de llegada de lotes, sin inventar fechas reales.
 
-Para cerrar la entrega: aportar el enunciado oficial, ejecutar la guía en Windows,
-agregar evidencias auténticas, confirmar formato de informe y URL GitHub, identificar
-al estudiante y actualizar matriz e informe con resultados del clúster.
+**Regla de alarma/reentrenamiento:** caída absoluta de ROC AUC >=0,10 respecto de
+validación durante **tres lotes etiquetados consecutivos**. Una recuperación rompe
+la racha. Una etiqueta pendiente pausa la evaluación; no se fabrica una métrica.
+La caída elegida es material para el ejercicio y tres ventanas reducen reacción a
+ruido aislado. No se afirma significancia estadística ni calibración de negocio.
+
+El escenario normal no disparó alarma. El alterado la disparó en el lote **7**,
+tras los lotes 5, 6 y 7 degradados. Resultados por lote, umbrales y alarma están en
+CSV y JSON. Las figuras son:
+
+![Control temporal sin alteración](../evidence/temporal-normal.png)
+
+![Concept drift con etiquetas invertidas](../evidence/temporal-concept.png)
+
+Log loss se conserva como señal auxiliar de lote: normal=0,426171, perturbación de
+cargos=0,433883 e inversión completa=2,075489; referencia=0,437579. Ese detector de
+un lote no sustituye la regla principal sostenida de ROC AUC. La caída de desempeño
+es señal compatible con drift, no prueba causal suficiente en una operación real.
+La simulación cambia explícitamente P(y|X); no es un hallazgo en clientes reales.
+
+## 8. Retraso de etiquetas y respuesta operativa
+
+En producción, registrar prediction_id, fecha, versión/run y probabilidad, para
+conciliar ground truth cuando madure la ventana de churn. Mientras no llegue,
+marcar la métrica pendiente y vigilar distribución de entradas, calidad, errores,
+latencia y categorías nuevas. Estos proxies no demuestran concept drift. Si el
+riesgo lo exige, revisión humana o menor automatización mientras se confirma la causa.
+
+Cuando haya etiquetas suficientes, evaluar cohortes por fecha de predicción, sin
+sesgo de observar solo resultados tempranos. Una ventana desconocida no se trata
+como saludable. Se prueba la lógica de espera con valores None, pero no se afirma
+que esté implementada una cola productiva de conciliación. La alarma solicita
+investigación y entrenamiento con datos nuevos válidos; no se reentrena con etiquetas
+manipuladas solo para pasar la demostración.
+
+## 9. Verificación, web y entrega
+
+Se ejecutaron **13 pruebas aprobadas**: dataset, versiones/alias, inferencia desde
+Registry, entradas inválidas, baseline train, drift numérico/categórico y alarmas
+transitorias/sostenidas con etiquetas pendientes. Los procesos drift devolvieron
+normal=0 y alterados=2; temporal normal=0 y concept=2. Los estados rojos son fallos
+intencionales de la compuerta y éxito de las pruebas del detector.
+
+Se comprobó por HTTP inferencia 200, rechazo inválido 422 y HTML 200. La web está
+implementada con fetch same-origin y reporta identidad del modelo/Pod. Su consumo
+contra Kubernetes y la demostración en Network están pendientes. Los hasta 15
+puntos extra no se reclaman mientras no cierre el proyecto base.
+
+Git incluye commits reales y bundle completo. RESPONSABILIDADES.md declara una
+responsable individual y asistencia de IA, sin fabricar contribuciones ni fechas.
+Se entregan matriz oficial, arquitectura, informe, guion de defensa, logs, JSON,
+CSV, gráficas y snapshot real de MLflow. El URL GitHub y evidencia Windows/Kubernetes
+son pendientes. La guía exacta está en README; el proyecto no se declara finalizado
+hasta comprobar ese entorno y publicar la entrega solicitada.
 
 ## Referencias
 
-IBM. Telco Customer Churn. Repositorio público y archivo de datos citado en DATOS.md.
-https://github.com/IBM/telco-customer-churn-on-icp4d
-
-MLflow. Model Registry y Model Registry Workflows. Documentación oficial consultada.
-https://mlflow.org/docs/latest/model-registry/
-https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
-
-UAGRM. Material del módulo: Clase 5 (MLflow), Clase 6 (automatización CD4ML) y
-Clase 7 (monitoreo y drift). Archivos proporcionados por el usuario. Ejemplos:
-mlflow.zip, heladeria-ci-cd-ct.zip y drift.zip. Adaptaciones documentadas en MATERIALES.md.
+- UAGRM. Enunciado oficial recibido en el chat; transcripción en ENUNCIADO_OFICIAL.md.
+- UAGRM. Diapositivas clases 5, 6 y 7 y tres proyectos de ejemplo; revisión en MATERIALES.md.
+- IBM. Telco Customer Churn: https://github.com/IBM/telco-customer-churn-on-icp4d
+- MLflow. Model Registry: https://mlflow.org/docs/latest/model-registry/
+- MLflow. Workflows: https://www.mlflow.org/docs/latest/ml/model-registry/workflow/
