@@ -1,0 +1,25 @@
+name: CI
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Registry and real integration tests
+        run: |
+          mkdir -p evidence
+          mlflow server --backend-store-uri sqlite:///mlflow.db --serve-artifacts --artifacts-destination ./mlartifacts --host 127.0.0.1 --port 5000 > evidence/mlflow.log 2>&1 &
+          python scripts/wait_server.py
+          python -m src.train > evidence/training.log 2>&1
+          pytest -v --junitxml=evidence/pytest.xml
+      - name: Build service
+        run: docker build -t churn-api:ci .
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: real-evidence
+          path: evidence/
