@@ -1,4 +1,5 @@
 FROM python:3.12.10-slim
-RUN pip install --no-cache-dir mlflow==2.22.2
+COPY requirements-lock.txt /tmp/requirements-lock.txt
+RUN pip install --no-cache-dir -r /tmp/requirements-lock.txt
 WORKDIR /mlflow
 CMD ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000", "--backend-store-uri", "sqlite:////mlflow/state/mlflow.db", "--serve-artifacts", "--artifacts-destination", "/mlflow/state/artifacts"]

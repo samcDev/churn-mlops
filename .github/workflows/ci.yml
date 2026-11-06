@@ -8,7 +8,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -r requirements.txt
+      - run: pip install -r requirements-lock.txt
       - name: Registry and real integration tests
         run: |
           mkdir -p evidence
@@ -16,6 +16,15 @@ jobs:
           python scripts/wait_server.py
           python -m src.train > evidence/training.log 2>&1
           pytest -v --junitxml=evidence/pytest.xml
+          python -m src.drift normal > evidence/drift-normal.log
+          set +e
+          python -m src.drift data > evidence/drift-data.log
+          data_code=$?
+          python -m src.drift concept > evidence/drift-concept.log
+          concept_code=$?
+          set -e
+          test "$data_code" -eq 2
+          test "$concept_code" -eq 2
       - name: Build service
         run: docker build -t churn-api:ci .
       - uses: actions/upload-artifact@v4

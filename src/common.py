@@ -11,6 +11,12 @@ def tracking():
 def data():
     df = pd.read_csv(ROOT / 'data/telco.csv')
     df['TotalCharges'] = pd.to_numeric(df.TotalCharges, errors='coerce')
-    assert len(df) >= 1000 and df.customerID.is_unique
-    assert set(df.Churn) == {'Yes', 'No'}
+    if len(df) < 1000 or not df.customerID.is_unique:
+        raise ValueError('Dataset must have >=1000 unique customers')
+    if set(df.Churn) != {'Yes', 'No'}:
+        raise ValueError('Invalid binary target')
+    if df[FEATURES].isna().mean().max() > .01:
+        raise ValueError('Missing value fraction exceeds 1%')
+    if df[['tenure','MonthlyCharges']].isna().any().any():
+        raise ValueError('Unexpected missing tenure or MonthlyCharges')
     return df[FEATURES], df.Churn.map({'Yes': 1, 'No': 0})

@@ -5,3 +5,6 @@ mlruns/
 *.db
 evidence/*.csv
 *.egg-info/
+mlartifacts/
+repository.bundle
+evidence/mlflow-snapshot.zip

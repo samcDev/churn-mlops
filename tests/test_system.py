@@ -1,4 +1,5 @@
 import os
+import pytest
 import mlflow, mlflow.sklearn
 import pandas as pd
 from fastapi.testclient import TestClient
@@ -32,3 +33,16 @@ def test_drift_scenarios():
     assert check(ref,scenario(cur,'data'),m)['data_drift']
     concept=check(ref,scenario(cur,'concept'),m)
     assert concept['concept_drift'] and not concept['data_drift']
+
+@pytest.mark.parametrize('field,value',[('tenure',101),('MonthlyCharges',-1),('Contract','unknown'),('unexpected',1)])
+def test_invalid_input_contract(field,value):
+    with TestClient(app) as c:
+        payload={'tenure':12,'MonthlyCharges':75,'TotalCharges':900,'Contract':'Month-to-month','InternetService':'Fiber optic','PaymentMethod':'Electronic check'}
+        payload[field]=value
+        assert c.post('/predict',json=payload).status_code==422
+
+def test_categorical_drift():
+    mlflow.set_tracking_uri(tracking());m=mlflow.sklearn.load_model(f'models:/{NAME}@production')
+    ref=pd.read_csv(ROOT/'evidence/reference.csv');cur=pd.read_csv(ROOT/'evidence/current.csv')
+    cur['Contract']='Two year'
+    assert check(ref,cur,m)['features']['Contract']['drift']
