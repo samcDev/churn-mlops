@@ -1,162 +1,188 @@
-# Customer Churn — Proyecto individual MLOps UAGRM
+# Customer Churn con MLflow Docker y Kubernetes
 
-Implementación funcional con datos públicos IBM Telco (7.043 clientes), seis predictores,
-cinco corridas reproducibles, cinco versiones registradas, alias `production`, FastAPI,
-Docker, Kubernetes y controles de drift. Leer `docs/INFORME.md` y `docs/MATRIZ.md`.
+Proyecto individual del módulo MLOps y Puesta en Producción de la UAGRM.
+Predice abandono de clientes sobre el dataset público IBM Telco, con 7.043 registros
+y seis entradas. Incluye entrenamiento reproducible, cinco runs comparables, Model
+Registry, FastAPI, contenedores propios, tres réplicas y pruebas de drift.
 
-**Enunciado oficial recibido y contrastado:** `docs/ENUNCIADO_OFICIAL.md` y
-`docs/MATRIZ.md`. Cinco runs comparables cumplen el requisito de cinco ejecuciones.
-Hay 13 pruebas de integración aprobadas en Linux; Docker/Kubernetes, UI del clúster
-y demostración en vivo siguen pendientes. No se dan por obtenidos los 15 puntos extra.
+## Resultados verificados
 
-## 1. Preparación en PowerShell (Python 3.12)
+Ejecución del 6 de noviembre de 2026 en Windows 11, Python 3.12.10 y Docker Desktop
+con contexto Kubernetes `docker-desktop`.
 
-Desde la carpeta extraída, con VS Code:
+| Comprobación | Resultado |
+|---|---|
+| Experimentación | Cinco valores de C; cinco versiones registradas |
+| Modelo servido | telco-churn, versión 4, alias production |
+| Run del modelo desplegado | 049f06a318534d88ab7514bb635396dd |
+| ROC AUC test | 0.835731 |
+| Pruebas automatizadas | 13 aprobadas |
+| Balanceo con tres Pods | 120 POST; conteos 39, 41 y 40; cero errores |
+| Recuperación | 152 solicitudes, 136 durante sustitución; cero fallos observados |
+| Escalamiento | Tres a cinco a tres; 250 POST a cinco Pods sin errores |
+| Drift | Normal pasa; alteraciones alertan; alarma temporal en lote 7 |
+| Web | POST /predict al Service, puerto 30080; HTTP 200 |
+
+La publicación GitHub y el ZIP final se completan después de revisar los documentos
+y adjuntar las evidencias. La defensa oral es una instancia separada del enunciado.
+El workflow CI está configurado; no se afirma una ejecución remota antes de comprobarla.
+
+## Documentación
+
+- [Informe técnico](docs/INFORME.md): metodología, resultados y responsabilidades.
+- [Arquitectura](docs/ARQUITECTURA.md): componentes, decisiones y linaje.
+- [Despliegue observado](docs/DESPLIEGUE.md): Pods, UIDs e imagen de la ejecución.
+- [Datos](docs/DATOS.md): origen, variables y particiones.
+- [Monitoreo](docs/MONITOREO.md): pruebas, umbrales y etiquetas tardías.
+- [Matriz de cumplimiento](docs/MATRIZ.md): relación con cada requisito.
+- [Materiales de referencia](docs/MATERIALES.md): adaptación de ejemplos de clase.
+
+## Preparación en PowerShell
+
+Requisitos: Python 3.12, Git, Docker Desktop funcionando, Kubernetes habilitado y
+`kubectl` disponible. Ejecutar desde la carpeta que contiene el Dockerfile.
 
 ```powershell
 py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements-lock.txt
 python -m pip check
-```
-
-Si la política bloquea la activación, se puede usar directamente
-`.\.venv\Scripts\python.exe` en los comandos de Python.
-El lock contiene el entorno probado; Gunicorn se excluye en Windows mediante un marcador.
-No reutilizar los `requirements.txt` de los ejemplos sin revisar su compatibilidad.
-
-## 2. Validación sin Docker (opcional, previa al despliegue)
-
-Terminal A, desde la raíz del proyecto:
-
-```powershell
-mlflow server --backend-store-uri sqlite:///mlflow.db --serve-artifacts --artifacts-destination ./mlartifacts --host 127.0.0.1 --port 5000
-```
-
-Terminal B, mismo entorno y directorio:
-
-```powershell
-$env:MLFLOW_TRACKING_URI = 'http://127.0.0.1:5000'
-python -m src.train
-pytest -v --junitxml=evidence/pytest-local.xml
-.\scripts\run-drift.ps1
-uvicorn src.app:app --host 127.0.0.1 --port 8000
-```
-
-Abrir http://localhost:8000 y http://localhost:5000. Los resultados de la API
-provienen del Registry real. La aplicación no tiene modelo de respaldo manual.
-Cada nuevo entrenamiento agrega cinco versiones; por ello la versión seleccionada
-puede tener un número distinto de la ejecución incluida.
-
-## 3. Despliegue en Docker Desktop Kubernetes
-
-Activar Kubernetes en Docker Desktop y reservar aproximadamente 6 GB de RAM.
-El motor de Docker y el clúster deben compartir las imágenes locales; los manifiestos
-usan `imagePullPolicy: Never`. Ante `ErrImageNeverPull`, comprobar el almacén de
-imágenes de Docker Desktop y su integración Kubernetes antes de continuar.
-
-```powershell
 kubectl config use-context docker-desktop
-kubectl cluster-info
-.\scripts\deploy.ps1
-$env:MLFLOW_TRACKING_URI = 'http://localhost:30500'
-pytest -v --junitxml=evidence/pytest-k8s-registry.xml
-.\scripts\run-drift.ps1
-.\scripts\verify-k8s.ps1
+kubectl get nodes
 ```
 
-El despliegue crea MLflow con PVC y SQLite, entrena contra su NodePort HTTP y luego
-reinicia los Pods de inferencia para cargar el alias aprobado. Los Pods que arrancan
-antes de existir el alias pueden fallar inicialmente; el reinicio posterior al entrenamiento
-es parte del procedimiento. SQLite con una réplica es apropiado para la práctica local;
-un servicio de producción requeriría base de datos externa, autenticación y almacenamiento remoto.
+Si PowerShell bloquea la activación, usar una política solo para la sesión:
 
-- Web: http://localhost:30080
-- OpenAPI: http://localhost:30080/docs
-- MLflow: http://localhost:30500
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+.\.venv\Scripts\Activate.ps1
+```
 
-**No usar `kubectl port-forward` para demostrar balanceo:** puede dirigir todo a un
-solo Pod. El comprobador abre conexiones nuevas al NodePort, cuenta nombres de Pods,
-exige tres y luego cinco identidades distintas y falla ante cualquier error HTTP.
-No exige reparto uniforme: el Service distribuye conexiones y la muestra es finita.
+El lock fija dependencias, incluido MLflow 2.22.2. Gunicorn se excluye en Windows
+mediante un marcador de plataforma. No instalar las librerías del proyecto sobre
+el Python global.
 
-## 4. Evidencias auténticas pendientes
+## Despliegue completo desde un entorno nuevo
 
-El script de Kubernetes guarda transcripción, UIDs, conteos por Pod, identidad del
-modelo y estado de cinco réplicas. `recovery.py` registra POST antes, durante y después
-de eliminar un Pod y exige cero fallos observados. Si falla, conserva el resultado rojo;
-una muestra finita no demuestra ausencia absoluta de interrupciones.
-Capturar personalmente: MLflow comparando cinco runs; Registry con versiones y alias;
-Pods Ready; salida de balanceo; eliminación y nuevo UID; cinco réplicas;
-web mostrando resultado y pestaña Network con POST `/predict` al puerto 30080.
-La prueba pytest contra el Registry Kubernetes todavía ejecuta la API mediante TestClient;
-la comprobación NodePort y la prueba web son verificaciones separadas.
+```powershell
+.\scripts\deploy.ps1
+```
+
+El script construye `churn-mlflow:1.0.0` y `churn-api:1.0.0`, aplica `k8s/stack.yaml`,
+espera MLflow, entrena contra el Registry del clúster y reinicia la API para cargar
+el alias aprobado. Los primeros Pods pueden fallar antes de que exista el alias;
+el reinicio posterior al entrenamiento forma parte de la provisión.
+
+Para realizar las etapas por separado:
+
+```powershell
+docker build -f Dockerfile.mlflow -t churn-mlflow:1.0.0 .
+docker build -t churn-api:1.0.0 .
+kubectl apply -f k8s/stack.yaml
+kubectl -n churn rollout status deployment/mlflow --timeout=300s
+$env:MLFLOW_TRACKING_URI = 'http://localhost:30500'
+Invoke-RestMethod -Uri 'http://localhost:30500/health'
+python -m src.train
+kubectl -n churn rollout restart deployment/churn-api
+kubectl -n churn rollout status deployment/churn-api --timeout=300s
+kubectl -n churn get pods -l app=churn-api -o wide
+```
+
+En un despliegue ya inicializado no es necesario reentrenar para obtener capturas.
+Repetir `src.train` crea cinco versiones adicionales y puede cambiar el número del
+alias y el run. Actualizar la documentación si cambia la versión seleccionada.
+Las imágenes deben estar disponibles para el Kubernetes de Docker Desktop porque
+los manifiestos usan `imagePullPolicy: Never`.
+
+| Servicio | URL local |
+|---|---|
+| Web | http://localhost:30080 |
+| Documentación API | http://localhost:30080/docs |
+| Identidad del modelo | http://localhost:30080/model |
+| MLflow | http://localhost:30500 |
+
+## Verificación y conservación de evidencias
+
+Mantener el entorno virtual activo y apuntar al Registry del clúster:
+
+```powershell
+$env:MLFLOW_TRACKING_URI = 'http://localhost:30500'
+python -m pytest -v --junitxml=evidence/pytest-windows.xml
+.\scripts\run-drift.ps1
+```
+
+El wrapper de drift verifica los códigos esperados. Normal=0; data=2; concept=2;
+temporal normal=0 y temporal concept=2. Los códigos 2 son alertas deliberadas de las
+compuertas, no fallos de instalación. Se generan JSON, CSV y figuras en `evidence`.
+
+La prueba pytest de API usa TestClient con el modelo del Registry. Para demostrar
+la API desplegada y el balanceo, se usan las siguientes pruebas sobre el NodePort:
+
+```powershell
+python scripts/balance.py --min-pods 3
+Copy-Item evidence/balance.json evidence/balance-three.json
+python scripts/recovery.py
+kubectl -n churn scale deployment/churn-api --replicas=5
+kubectl -n churn rollout status deployment/churn-api --timeout=300s
+kubectl -n churn get pods -l app=churn-api -o wide
+python scripts/balance.py --requests 250 --min-pods 5
+Copy-Item evidence/balance.json evidence/balance-five.json
+kubectl -n churn scale deployment/churn-api --replicas=3
+kubectl -n churn rollout status deployment/churn-api --timeout=300s
+kubectl -n churn get pods -l app=churn-api -o wide
+python scripts/record-deployment.py
+Move-Item .\docs\DESPLIEGUE_REAL.md .\docs\DESPLIEGUE.md -Force
+```
+
+`recovery.py` requiere exactamente tres Pods Running y Ready antes de eliminar uno;
+conserva todas las solicitudes y falla si observa errores. Tras reducir réplicas,
+esperar a que desaparezcan los Pods en Terminating antes de capturar el estado final.
+`verify-k8s.ps1` automatiza el recorrido; después puede aplicarse el mismo renombrado
+del anexo generado para mantener el nombre `DESPLIEGUE.md` usado en esta entrega.
+
+No usar `kubectl port-forward` como prueba de balanceo porque puede fijar un Pod.
+El comprobador usa nuevas conexiones al Service, exige identidades diferentes y
+comprueba versión/run en cada respuesta. No exige un reparto idéntico. Cero fallos
+observados es una medición finita, no una promesa de uptime absoluto.
+
+En la web, completar el formulario y pulsar Consultar API. En F12 > Network,
+seleccionar `predict` y verificar POST al puerto 30080 con estado 200. Conservar
+capturas en `evidence/capturas` y adjuntar las gráficas PNG originales al informe.
+
+## Estructura de la entrega
+
+- `src`, `tests`, `scripts`, `k8s` y `frontend`: implementación y verificadores.
+- Dockerfiles y archivos de dependencias: construcción reproducible.
+- `data/telco.csv`: dataset público versionado con hash de integridad.
+- `docs`: documentación técnica del proyecto.
+- `evidence`: pruebas, resultados y capturas del entorno de ejecución.
+- `.github/workflows/ci.yml`: integración continua preparada para GitHub Actions.
+
+Los CSV de referencia de `evidence` se regeneran al entrenar. La regla actual de
+`.gitignore` excluye esos CSV de Git; pueden conservarse en el ZIP de entrega. Los
+JSON, XML, figuras y capturas sí deben versionarse. No publicar `.venv`, cachés,
+archivos temporales de Word ni bases locales; el Registry se inicializa con MLflow.
+
+Después de publicar, entregar la URL del repositorio y un ZIP de código,
+documentación y evidencias. `python scripts/package.py` genera el ZIP en la carpeta
+padre. Revisar su contenido antes de enviar; incluye el historial `.git` y excluye
+entorno virtual, cachés y bases temporales. El informe final Word/PDF y las capturas
+deben estar dentro del proyecto antes de empaquetar si se pretende incluirlos.
+
+## Límites operativos
+
+El laboratorio utiliza un nodo local: varias réplicas no protegen ante pérdida del
+equipo completo. MLflow usa SQLite y PVC con una réplica; los Pods ya iniciados
+conservan el modelo en memoria, pero nuevos arranques dependen del Registry.
+Los NodePorts se destinan al laboratorio sin autenticación. Los escenarios de drift
+son simulaciones controladas; los umbrales son didácticos y requieren calibración
+para uso comercial. La cola productiva de etiquetas tardías y CT automático no se
+presentan como implementados. El runner CI hospedado no accede al clúster local.
+
+Para diagnóstico:
 
 ```powershell
 kubectl -n churn get pods -o wide
 kubectl -n churn get endpointslices
 kubectl -n churn logs deployment/churn-api --tail=80
 ```
-
-El control `data` devuelve código 2 por una alerta esperada; `concept` también.
-El wrapper ejecuta además `src.temporal normal` y `src.temporal concept`, genera las
-gráficas de ROC AUC y verifica alarma tras tres lotes etiquetados con caída >=0,10.
-Ver `docs/MONITOREO.md` para umbrales y retraso de etiquetas.
-El escenario normal debe devolver 0. Una alerta detectada correctamente es éxito del
-detector y fallo intencional de la compuerta de datos/modelo.
-
-## 5. Git y entrega
-
-El paquete incluye el repositorio `.git` y un `repository.bundle` con el historial real
-creado durante esta implementación. No contiene historia de días ficticios ni identidad
-personal inventada. Alternativa para reconstruirlo:
-
-```powershell
-git clone .\repository.bundle churn-entrega
-```
-
-Para publicar, crear un repositorio vacío en tu cuenta de GitHub y ejecutar dentro del proyecto:
-
-```powershell
-git remote add origin https://github.com/TU_USUARIO/churn-mlops.git
-git push -u origin main
-```
-
-Sustituir la URL por tu repositorio real. CI está preparado pero sus ejecuciones en GitHub
-no se afirman verificadas. El runner hospedado no accede a tu Kubernetes local.
-Después de ejecutar las pruebas locales, revisar y versionar sus evidencias:
-
-```powershell
-git add evidence docs
-git commit -m "test: add real Docker Desktop Kubernetes evidence"
-git push
-```
-
-Guardar capturas reales en `evidence/capturas/`. Para un ZIP actualizado, ejecutar
-`python scripts/package.py`; incluye `.git` y excluye entornos, cachés y bases temporales.
-La limpieza `kubectl delete namespace churn` elimina también el PVC y sus modelos:
-usarla solamente cuando ya no se necesite el estado del laboratorio.
-
-## Estado MLflow de la ejecución incluida
-
-`evidence/mlflow-snapshot.zip` conserva la base del Registry y los artefactos reales.
-Es evidencia reproducible de esta sesión; no se usa como sustituto del Registry.
-Para inspeccionarlo sin reentrenar, desde la raíz y sin otro servidor en el puerto:
-
-```powershell
-Expand-Archive evidence/mlflow-snapshot.zip -DestinationPath . -Force
-mlflow server --backend-store-uri sqlite:///verify.db --serve-artifacts --artifacts-destination ./mlartifacts --host 127.0.0.1 --port 5000
-```
-
-En otra terminal: `$env:MLFLOW_TRACKING_URI = 'http://127.0.0.1:5000'` y luego
-`pytest -v`. Los CSV de referencia/actual están incluidos en el ZIP de entrega,
-pero no en el bundle Git: el entrenamiento los regenera. Para comprobar despliegue
-se recomienda entrenar nuevamente contra el Registry del clúster usando deploy.ps1.
-
-## Presentación y comprobaciones oficiales
-
-`docs/DEFENSA.md` contiene el recorrido de MLflow: filtro, orden por ROC AUC,
-comparación de runs y alias del Registry. `docs/RESPONSABILIDADES.md` contiene la tabla
-de trabajo individual. `docs/MONITOREO.md` explica el baseline train, KS, chi-cuadrado,
-la alarma temporal y las etiquetas retrasadas. `docs/DESPLIEGUE_REAL.md` se genera
-solamente después de verificar el clúster y registra versión/run realmente desplegados.

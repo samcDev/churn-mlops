@@ -4,9 +4,9 @@
   "concept_signal_scope": "single-batch auxiliary log-loss signal; temporal ROC AUC rule is authoritative for retraining",
   "reference_rows": 4225,
   "performance_reference_rows": 1409,
-  "reference_log_loss": 0.4375785666991168,
-  "current_log_loss": 2.0754892528563382,
-  "loss_delta": 1.6379106861572215,
+  "reference_log_loss": 0.437578566699117,
+  "current_log_loss": 2.0754892528563467,
+  "loss_delta": 1.6379106861572297,
   "features": {
     "tenure": {
       "test": "KS",

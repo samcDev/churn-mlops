@@ -7,16 +7,19 @@
 | Experimento | telco-churn-individual |
 | Nombre registrado | telco-churn |
 | Alias | production |
-| Versión seleccionada y servida en HTTP Linux | 4 |
-| Run exacto | 73dacc6ce01d45859fe4fbea8b1335db |
+| Versión servida en Kubernetes | 4 |
+| Run exacto | 049f06a318534d88ab7514bb635396dd |
 | Hiperparámetro C | 10.0 |
 | ROC AUC validación | 0.830572 |
 
-Esto acredita el servicio HTTP de este entorno, **no un despliegue Kubernetes ya
-verificado**. En tu equipo, cada entrenamiento puede incrementar las versiones.
-Tras `verify-k8s.ps1`, `record-deployment.py` genera `docs/DESPLIEGUE_REAL.md` y
-`evidence/deployed-model.json` con la versión/run realmente servidos, UIDs e imágenes.
-El comprobador de balanceo exige que cada Pod coincida con el último training.json.
+El modelo se sirvió mediante el Service de Kubernetes en `http://localhost:30080`.
+El anexo [DESPLIEGUE.md](DESPLIEGUE.md) conserva UIDs y la identidad de la imagen;
+`evidence/deployed-model.json` registra el detalle obtenido del clúster. El
+comprobador de balanceo exigió coincidencia de versión y run en las respuestas.
+`record-deployment.py` genera por defecto `docs/DESPLIEGUE_REAL.md`; para mantener
+el nombre de este anexo después de repetir la comprobación, renombrar ese resultado
+a `DESPLIEGUE.md`. Cada nuevo entrenamiento puede crear otros números de versión y
+runs; en ese caso deben actualizarse estos identificadores.
 
 ```mermaid
 flowchart TD
@@ -64,4 +67,18 @@ Pipeline contiene imputación/escalado/one-hot y clasificador. Semilla 42; split
 60/20/20 estratificado. Cinco configuraciones comparables seleccionadas por validación;
 test no elige C. Datos con SHA256, lock transitivo y hash del script registrados.
 Cambiar alias requiere rollout de Pods; no se promete cambio atómico de todas las
-réplicas. K8s y Docker pendientes de ejecución local, como indica MATRIZ.md.
+réplicas. Docker y las pruebas de Kubernetes se ejecutaron en Windows 11 con
+Docker Desktop, como detalla [MATRIZ.md](MATRIZ.md).
+
+## Resultados de disponibilidad
+
+| Comprobación | Resultado observado |
+|---|---|
+| Balanceo inicial | 120 inferencias; tres Pods; conteos 39, 41 y 40; cero errores |
+| Eliminación y reemplazo de Pod | UID nuevo; tres Ready; 152 solicitudes, 136 durante sustitución; cero fallos |
+| Escala a cinco | Cinco Ready; 250 inferencias; conteos 53, 53, 47, 42 y 55; cero errores |
+| Reducción | Retorno a tres Running y Ready |
+| Web | POST /predict al puerto 30080; HTTP 200; versión y run coincidentes |
+
+La prueba de escala es manual mediante `kubectl scale`, no autoescalamiento HPA.
+El clúster de un nodo ofrece redundancia de procesos, sin tolerancia a pérdida del nodo.

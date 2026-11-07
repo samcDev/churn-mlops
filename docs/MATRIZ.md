@@ -1,39 +1,39 @@
 # Matriz de cumplimiento del enunciado oficial
 
-Fuente: ENUNCIADO_OFICIAL.md, texto recibido en el chat. V = verificado en Linux;
-I/P = implementado, pendiente de ejecución Windows/Docker/Kubernetes; P = pendiente.
-No se asigna una nota ni se dan por obtenidos los 15 puntos extra.
+Fuente: enunciado del proyecto final del módulo MLOps y Puesta en Producción UAGRM.
+V = verificado en Windows o en el clúster local. D = diseño documentado.
+P = pendiente. No se asigna puntaje ni se presume sustitución de la defensa oral.
 
-| Cláusula | Requisito | Solución / evidencia | Estado |
+| Cláusula | Requisito | Implementación y evidencia | Estado |
 |---|---|---|---|
-| 2 | Modalidad individual y reparto | RESPONSABILIDADES.md; historial real, asistencia declarada | V; completar identificación académica antes de entregar |
-| 2 | Git obligatorio | .git y repository.bundle con commits reales | V local; URL GitHub P |
-| 2 | Defensa individual de todo el proyecto | DEFENSA.md con demostración y preguntas | Preparada; defensa P |
-| 3.1 | Problema con varias entradas, dataset público recomendado >=1000 | IBM Telco: 7.043 filas, seis predictores | V |
-| 3.2 | Entrenamiento reproducible y split documentado | Semilla 42, split 60/20/20, Pipeline, hash y lock | V |
-| 3.2 | >=5 ejecuciones comparables con distintos hiperparámetros | Cinco runs de C=0.01/0.1/1/10/100 sobre mismo split | V; cinco runs cumplen el texto oficial |
-| 3.3 | Experimentación y versionado en MLflow | Tracking HTTP, métricas, parámetros, firma y artifacts | V |
-| 3.3.2 | Nombre estable y varias versiones | Registry telco-churn, cinco versiones | V |
-| 3.3.2 | Referencia explícita de producción | production → versión numérica; API resuelve alias y carga esa versión | V local; consumo en clúster I/P |
-| 3.3.2 | Arquitectura identifica versión y run | ARQUITECTURA.md y training.json; DESPLIEGUE_REAL.md se genera tras K8s | V local; correspondencia K8s I/P |
-| 3.4 | UI MLflow operativa y demostración en vivo | Servidor preparado, snapshot, guion de filtro/orden/comparación/Registry | HTTP del servidor V; interacción y defensa local P |
-| 4 | Dockerfile propio | Dockerfile API y Dockerfile.mlflow | I/P construcción real |
-| 4 | Dependencias fijadas, incluido MLflow | requirements-lock.txt y Python base fijado | V instalación Linux; Docker/Windows I/P |
-| 4 | Contenedor levanta inferencia sin intervención | CMD Uvicorn, carga de Registry al inicio, sin archivos modelo manuales | I/P ejecución de contenedor |
-| 5.2 | >=3 réplicas Running simultáneamente | Deployment replicas=3; chequeos Running y Ready | I/P |
-| 5.2 | Tráfico entre Pods distintos por Service | POST NodePort con conexiones nuevas, identidad y versión/run por Pod | I/P; exige >=3 identidades, cero errores |
-| 5.2 | Autorreparación sin dejar de responder | recovery.py: POST antes/durante/después de delete, nuevo UID Ready | I/P; criterio cero solicitudes fallidas observadas |
-| 5.2 | Escalado y efecto | 3→5→3; cinco Ready y POST atendidos por cinco Pods | I/P |
-| 6.1 | Cada entrada contra baseline de entrenamiento | reference.csv contiene 4.225 filas train; seis variables comparadas | V |
-| 6.1 | Prueba por tipo de variable y justificación | KS numéricas; chi-cuadrado categóricas más distancia TV | V; MONITOREO.md |
-| 6.1 | Umbrales y procedencia | Bonferroni 0.05/6; KS>0.1; TV>0.15, tolerancias didácticas previas | V; límites documentados |
-| 6.1 | Verde normal y rojo perturbado | drift normal=0; data=2; pruebas categóricas y numéricas | V; logs y JSON |
-| 6.2 | Cambiar relación entrada/objetivo | Inversión de etiquetas desde lote 5 manteniendo entradas | V, simulación explícita |
-| 6.2 | Métrica principal por lotes y gráfica temporal | ROC AUC en diez lotes disjuntos, CSV/JSON/PNG | V; tiempo simulado |
-| 6.2 | Caída sostenida y criterio de reentrenamiento | ROC AUC cae >=0.10 durante 3 lotes etiquetados consecutivos | V; alarma lote 7 en escenario alterado |
-| 6.2 | Retraso de etiquetas | Sin etiquetas: no calcular desempeño; cola de conciliación; vigilar entradas/API | V diseño y prueba lógica; MONITOREO.md |
-| 7 | UI consume API real en Kubernetes | HTML fetch /predict same-origin, muestra versión/run/Pod | HTTP Linux V; navegador/Network K8s I/P |
-| Entrega | Enlace repo y ZIP con documentación/evidencias | ZIP y bundle presentes | ZIP V; URL GitHub y evidencia K8s P |
+| 2 | Trabajo individual y reparto | Tabla de responsabilidades en INFORME.md | Documentado |
+| 2 | Historial Git | Commits locales conservados; publicación remota por completar | V local y P publicación |
+| 2 | Defensa individual | No realizada; instancia de evaluación según el docente | P |
+| 3.1 | Dataset y varias entradas | IBM Telco; 7.043 registros y seis predictores | V |
+| 3.2 | Reproducibilidad | Semilla 42; split 60/20/20; Pipeline y hash | V |
+| 3.2 | Cinco ejecuciones comparables | C=0.01, 0.1, 1, 10 y 100 sobre el mismo split | V |
+| 3.3 | Ciclo de experimentación MLflow | Parámetros, métricas, firma y modelo registrados | V |
+| 3.3.2 | Nombre estable y varias versiones | telco-churn; versiones 1 a 5 | V |
+| 3.3.2 | Referencia explícita de producción | Alias production a versión 4; API resuelve alias al iniciar | V |
+| 3.3.2 | Linaje del servicio | Run 049f06a318534d88ab7514bb635396dd; ARQUITECTURA.md y DESPLIEGUE.md | V |
+| 3.4 | UI y comparación | Capturas de cinco runs, comparación de C y ROC AUC, Registry y run origen | V recorrido; presentación oral P |
+| 4 | Dockerfile propio y dependencias fijadas | Dockerfile, Dockerfile.mlflow y requirements-lock.txt | V construcción |
+| 4 | Inferencia en contenedor | Imagen churn-api:1.0.0 ejecutada en los Pods; carga Registry automática | V |
+| 5.2 | Tres réplicas simultáneas | Tres Pods Running y Ready 1/1 | V |
+| 5.2 | Balanceo por Service | 120 POST; conteos 39, 41 y 40; cero errores | V |
+| 5.2 | Recuperación con servicio disponible | Nuevo UID; tres Ready; 152 solicitudes, 136 durante sustitución; cero fallos observados | V ventana muestreada |
+| 5.2 | Escalamiento | 3 a 5 a 3; 250 POST atendidos por cinco Pods sin errores | V |
+| 6.1 | Cada entrada contra train | Seis variables y baseline de 4.225 filas | V |
+| 6.1 | Prueba por tipo y justificación | KS; chi cuadrado con TV; umbrales explicados en MONITOREO.md | V |
+| 6.1 | Verde y rojo deliberado | Normal=0; perturbación de datos=2 | V |
+| 6.2 | Cambio de relación entrada objetivo | Inversión de etiquetas desde lote 5 | V simulación |
+| 6.2 | Lotes y gráfica temporal | Diez lotes disjuntos; ROC AUC en CSV, JSON y PNG | V |
+| 6.2 | Criterio sostenido | Caída AUC de 0.10 por tres lotes; primera alarma lote 7 | V |
+| 6.2 | Retraso de etiquetas | Lógica de espera probada; conciliación productiva descrita, no implementada | V lógica y D operación |
+| 7 | Web consume API de Kubernetes | localhost:30080, POST /predict, 200 OK, identidad Pod versión y run | V funcionamiento; puntaje a criterio docente |
+| Entrega | Enlace Git y ZIP con documentación y evidencia | Código, documentos y evidencia local disponibles; preparar versión final y publicar | P cierre |
 
-El proyecto base no se declara completo hasta ejecutar los puntos Docker/Kubernetes.
-La web ya está implementada, pero los extras dependen de cerrar primero el proyecto base.
+Las pruebas técnicas de Docker, Kubernetes, API y drift están ejecutadas. Permanecen
+pendientes la publicación, el empaquetado final y la instancia oral prevista en el
+enunciado. El funcionamiento de la web acredita el consumo requerido para el extra;
+no concede automáticamente una calificación.

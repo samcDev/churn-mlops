@@ -1,11 +1,11 @@
 # Predicción de abandono de clientes con un flujo MLOps reproducible y observable
 
-Maestría en Ciencia de Datos e Inteligencia Artificial — UAGRM  
+Maestría en Ciencia de Datos — UAGRM  
 Módulo: MLOps y Puesta en Producción  
-Modalidad: individual, con asistencia de IA declarada  
-Verificación: 5 de noviembre de 2026, Bolivia  
-Estado: modelo, Registry, API y drift ejecutados en Linux; Docker/Kubernetes y
-consumo web sobre clúster pendientes de ejecución en Windows.
+Modalidad: individual  
+Verificación: 6 de noviembre de 2026, Bolivia  
+Estado: entrenamiento, Registry, API, contenedores, Kubernetes y drift comprobados
+en Windows 11 con Docker Desktop. Publicación GitHub y empaquetado final por completar.
 
 ## 1. Resumen y objetivo
 
@@ -19,16 +19,16 @@ modelo por esa referencia, sin archivos de modelo administrados manualmente.
 
 La implementación contiene Dockerfiles propios, manifiestos Kubernetes con tres
 réplicas, verificadores de balanceo/autorreparación/escala y una interfaz HTML que
-consume la API. Los componentes no ejecutados en el clúster se identifican como
-pendientes; no se presentan capturas ficticias ni resultados supuestos. Trece
-pruebas automatizadas pasaron en este entorno. Se ejecutó además inferencia por
-HTTP y escenarios de drift con estados de éxito y fallo intencional.
+consume la API. Se comprobó el servicio desplegado en Kubernetes mediante inferencias HTTP,
+distribución entre Pods, recuperación y escalamiento. Trece pruebas automatizadas
+pasaron en Windows. Se ejecutaron escenarios de drift con estados normales y
+alertas deliberadas. El informe conserva los límites de cada comprobación.
 
 ## 2. Datos y metodología
 
 Fuente: IBM, `telco-customer-churn-on-icp4d`, CSV versionado incluido en el repositorio.
 SHA256: `16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91`.
-Es un benchmark educativo y no representa datos de la empresa del usuario.
+Es un benchmark educativo; no permite extrapolar su desempeño a una empresa específica.
 
 Predictores: tenure, MonthlyCharges, TotalCharges, Contract, InternetService y
 PaymentMethod. El objetivo Churn se convierte Yes→1, No→0. Se excluye customerID.
@@ -60,9 +60,9 @@ Cada run registra parámetros, métricas, firma, ejemplo, modelo, hash de datos,
 commit y hash del script de entrenamiento. MLflow administra la serialización y los artifacts.
 
 Modelo estable: `telco-churn`; alias: `production`; versión: **4**; run:
-`73dacc6ce01d45859fe4fbea8b1335db`. Esta identidad se comprobó en el servicio HTTP Linux.
-La identidad del despliegue Kubernetes se registrará mediante record-deployment.py,
-en DESPLIEGUE_REAL.md y deployed-model.json, al finalizar la prueba local.
+`049f06a318534d88ab7514bb635396dd`. Esta identidad corresponde al Registry de Kubernetes y a las
+respuestas del servicio desplegado. El anexo [DESPLIEGUE.md](DESPLIEGUE.md) y el archivo
+`evidence/deployed-model.json` relacionan el modelo con los UIDs y la imagen de los Pods.
 
 | Métrica de test | Resultado |
 |---|---|
@@ -71,9 +71,10 @@ en DESPLIEGUE_REAL.md y deployed-model.json, al finalizar la prueba local.
 | Exactitud | 79.772889% |
 
 El AUC supera la compuerta didáctica; F1≈0,59 impide describir el modelo como perfecto.
-La UI de MLflow debe mostrarse en vivo: abrir experimento, filtrar y ordenar por
-val_roc_auc, comparar runs y abrir la versión de production. DEFENSA.md contiene
-los pasos. Que un endpoint HTTP sirva la página no sustituye la demostración en vivo.
+La UI de MLflow se comprobó en `http://localhost:30500`: listado de cinco runs,
+orden descendente por `val_roc_auc`, comparación de hiperparámetros y versión 4
+con alias `production`. Las capturas E02, E03 y E04 documentan ese recorrido.
+La demostración oral prevista en el enunciado se evalúa por separado.
 
 ## 4. Arquitectura y contenerización
 
@@ -87,9 +88,9 @@ que incluye MLflow 2.22.2. El CMD inicia Uvicorn; no precisa instalar librerías
 host. MLflow es un servicio separado con metadatos SQLite y artifacts en PVC,
 descargados por HTTP. La provisión inicial entrena/publica el modelo antes de esperar
 la API lista. No hay pasos manuales adicionales dentro de cada contenedor de inferencia.
-Docker no estaba disponible en el entorno de ejecución; construir y probar ambas
-imágenes sigue pendiente. La instalación inicial detectó una incompatibilidad con
-SQLAlchemy 2.1.8, corregida a 2.0.40 y recogida en el lock.
+Se construyeron las imágenes `churn-api:1.0.0` y `churn-mlflow:1.0.0` en Docker
+Desktop. La imagen de inferencia se ejecutó efectivamente en los Pods. Las
+dependencias fijan SQLAlchemy 2.0.40 y Alembic 1.15.2 junto a MLflow 2.22.2.
 
 ## 5. Kubernetes y disponibilidad
 
@@ -97,16 +98,24 @@ Deployment API: tres réplicas; Service NodePort 30080, sin afinidad de sesión;
 MLflow NodePort 30500; probes startup/readiness/liveness; recursos CPU/memoria.
 Se añadió preStop de cinco segundos y grace period de treinta para favorecer drenaje.
 
-Las cuatro demostraciones oficiales están automatizadas pero no ejecutadas aquí:
+Las cuatro demostraciones exigidas se ejecutaron en el clúster local:
 
-1. Tres Pods simultáneamente Running y Ready.
-2. Balanceo: inferencias POST sucesivas al Service, cada una con conexión nueva,
-   atendidas por al menos tres identidades. Se comprueba versión/run en cada respuesta.
-3. Autorreparación: solicitudes antes, durante y después de eliminar un Pod, UID nuevo
-   Running/Ready y recuperación a tres. Se exige cero solicitudes fallidas observadas.
-   El script conserva los fallos y no los oculta mediante reintentos. El muestreo finito
-   acredita la observación realizada, no uptime absoluto para todo instante posible.
-4. Escala 3→5→3, cinco réplicas Ready y cinco Pods efectivamente sirviendo inferencias.
+1. **Réplicas:** tres Pods `churn-api` simultáneamente `Running` y `Ready 1/1`.
+2. **Balanceo:** 120 inferencias al Service, distribuidas 39, 41 y 40 entre tres
+   Pods, con cero errores. Todas las respuestas identificaron versión 4, alias
+   `production` y el mismo run seleccionado.
+3. **Autorreparación:** eliminación del Pod `churn-api-6d6b9cb9c6-clfqv`, UID
+   `fe425103-e9c3-4c79-b55b-7e2821af3ecf`. Kubernetes creó
+   `churn-api-6d6b9cb9c6-gf85t`, UID `83d2da80-7376-4f2c-b2ea-2d1deaad261b`.
+   Se registraron 152 solicitudes, 136 durante eliminación y reemplazo, y cero
+   solicitudes fallidas; el estado final fue tres Pods listos. Es una observación
+   finita, no una garantía de ausencia absoluta de interrupciones.
+4. **Escalamiento:** cambio de tres a cinco réplicas. Se observaron cinco Pods
+   listos y 250 inferencias distribuidas en conteos 53, 53, 47, 42 y 55, sin errores.
+   Se volvió después a tres réplicas y se esperó a que terminaran las dos sobrantes.
+
+Evidencias: `balance-three.json`, `balance-five.json`, `recovery.json`,
+`deployed-model.json` y capturas E07 a E10 en la carpeta `evidence`.
 
 No se usa port-forward para acreditar balanceo, pues puede fijar un backend. No se
 exige reparto uniforme. La única réplica MLflow no ofrece alta disponibilidad de
@@ -125,7 +134,7 @@ alertas por cambios diminutos en muestras grandes.
 
 0,05 es una convención estadística; las magnitudes 0,10/0,15 son tolerancias didácticas
 fijadas previamente, no números derivados de una calibración industrial. Se explican
-sus límites y su calibración futura con históricos estables en MONITOREO.md.
+sus límites y su calibración futura con históricos estables en [MONITOREO.md](MONITOREO.md).
 El lote normal pasó y el desplazamiento deliberado de MonthlyCharges +100 activó
 la alerta. Hay además una prueba automatizada de perturbación categórica.
 
@@ -180,22 +189,52 @@ transitorias/sostenidas con etiquetas pendientes. Los procesos drift devolvieron
 normal=0 y alterados=2; temporal normal=0 y concept=2. Los estados rojos son fallos
 intencionales de la compuerta y éxito de las pruebas del detector.
 
-Se comprobó por HTTP inferencia 200, rechazo inválido 422 y HTML 200. La web está
-implementada con fetch same-origin y reporta identidad del modelo/Pod. Su consumo
-contra Kubernetes y la demostración en Network están pendientes. Los hasta 15
-puntos extra no se reclaman mientras no cierre el proyecto base.
+La interfaz se comprobó en `http://localhost:30080`. Una consulta capturada obtuvo
+17,4 % de probabilidad y clasificación de no abandono, con versión 4, alias
+`production`, nombre de Pod y run del Registry del clúster. Network mostró
+`POST http://localhost:30080/predict` con `200 OK`. La web usa fetch sobre el mismo
+origen. El puntaje extra corresponde a la valoración del docente; el informe no
+presupone los 15 puntos.
 
-Git incluye commits reales y bundle completo. RESPONSABILIDADES.md declara una
-responsable individual y asistencia de IA, sin fabricar contribuciones ni fechas.
-Se entregan matriz oficial, arquitectura, informe, guion de defensa, logs, JSON,
-CSV, gráficas y snapshot real de MLflow. El URL GitHub y evidencia Windows/Kubernetes
-son pendientes. La guía exacta está en README; el proyecto no se declara finalizado
-hasta comprobar ese entorno y publicar la entrega solicitada.
+Los registros de pytest con `MLFLOW_TRACKING_URI=http://localhost:30500` verifican
+integración con el Registry del clúster. El caso de API de pytest usa TestClient;
+las pruebas NodePort y Network son las que acreditan el servicio efectivamente
+desplegado. Las advertencias de deprecación no se contabilizan como pruebas fallidas.
+
+## 10. Responsabilidades del trabajo individual
+
+| Componente | Responsable | Evidencia técnica |
+|---|---|---|
+| Datos y entrenamiento | Estudiante responsable del trabajo individual | Pipeline, cinco runs y training.json |
+| Tracking y versionado | Misma responsable | Registry, alias y run asociado |
+| API y contenedores | Misma responsable | FastAPI, Dockerfiles e imágenes |
+| Despliegue y disponibilidad | Misma responsable | Pods, Service, balanceo, recuperación y escala |
+| Drift y pruebas | Misma responsable | Pruebas, JSON, CSV y gráficas temporales |
+| Documentación y entrega | Misma responsable | Informe, matriz, capturas y repositorio |
+
+El historial Git conserva los commits reales. El estado de publicación se confirma
+mediante `git remote -v` y un push exitoso; aún falta ese paso al corte del informe.
+La defensa individual y la demostración oral no se presentan como realizadas ni
+como sustituidas automáticamente por documentación.
+
+## 11. Entrega y límites
+
+La entrega se compone del enlace al repositorio Git y un ZIP con código,
+documentación y evidencias. El informe con capturas puede incorporarse en Word/PDF;
+los archivos JSON, XML, CSV y PNG se conservan como respaldo verificable. El informe
+no afirma una ejecución remota de GitHub Actions: el workflow está configurado, pero
+su resultado debe comprobarse en la plataforma después de publicar.
+
+El laboratorio usa un clúster local de un nodo. Tres Pods en ese nodo no protegen
+contra la caída completa del equipo. MLflow utiliza SQLite y un PVC con una sola
+réplica. No se implementan autenticación, un sistema productivo de etiquetas tardías,
+CT automático, A/B testing ni promoción continua frente a un campeón histórico.
+Estas limitaciones no se confunden con funciones ya demostradas.
 
 ## Referencias
 
-- UAGRM. Enunciado oficial recibido en el chat; transcripción en ENUNCIADO_OFICIAL.md.
-- UAGRM. Diapositivas clases 5, 6 y 7 y tres proyectos de ejemplo; revisión en MATERIALES.md.
+- UAGRM. Enunciado oficial del proyecto final del módulo MLOps y Puesta en Producción.
+- UAGRM. Diapositivas clases 5, 6 y 7 y proyectos de ejemplo; revisión en [MATERIALES.md](MATERIALES.md).
 - IBM. Telco Customer Churn: https://github.com/IBM/telco-customer-churn-on-icp4d
 - MLflow. Model Registry: https://mlflow.org/docs/latest/model-registry/
 - MLflow. Workflows: https://www.mlflow.org/docs/latest/ml/model-registry/workflow/

@@ -7,7 +7,7 @@ https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/
 Se incluye el CSV exacto para reproducibilidad sin descargar datos cambiantes.
 SHA256: `16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91`.
 Este conjunto se usa como benchmark educativo; no representa clientes reales de
-Hexacorp ni permite estimar su tasa de abandono. Consultar los términos y atribución
+una organización específica ni permite estimar su tasa de abandono. Consultar los términos y atribución
 del repositorio de origen antes de redistribución comercial.
 
 | Campo | Tipo | Tratamiento |
@@ -26,4 +26,4 @@ El dataset tiene 7.043 filas; particiones estratificadas y semilla 42:
 train 4.225, validación 1.409, test 1.409. Los seis campos de entrada excluyen
 identificador y objetivo. El límite de nulos permitido por columna es 1%; solo
 TotalCharges admite nulos originales. CSV versionado en Git en lugar de DVC, ya
-que pesa menos de 1 MB y el usuario no impuso DVC en los requisitos disponibles.
+que pesa menos de 1 MB y puede mantenerse junto al código con hash de integridad.

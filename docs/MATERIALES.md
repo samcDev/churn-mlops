@@ -2,7 +2,7 @@
 
 Se inspeccionaron los tres ZIP y se extrajo por OCR el contenido de las 55 diapositivas
 (Clase 5: 18; Clase 6: 21; Clase 7: 16). El OCR contiene errores de reconocimiento;
-no reemplaza los originales. El enunciado oficial se recibió posteriormente como texto y se conserva en ENUNCIADO_OFICIAL.md.
+no reemplaza los originales. La matriz de cumplimiento se contrasta con el enunciado oficial publicado para el módulo.
 
 | Fuente | Uso en esta implementación | Ajuste necesario |
 |---|---|---|
@@ -10,7 +10,7 @@ no reemplaza los originales. El enunciado oficial se recibió posteriormente com
 | `mlflow/entrenar2.py` | Barrido de cinco valores de C y logging | Churn en lugar de Iris, split train/validation/test, Registry |
 | Clase 6, diap. 5–12, 14, 20–21 | Pruebas, compuerta de calidad, Docker y FastAPI | Dependencias fijadas y workflow CI; CD local explícito |
 | `heladeria-ci-cd-ct` | Organización API/web/tests y CI | Se descarta modelo JSON manual y no se copia su `.git` |
-| Clase 7, diap. 5–11 | Monitoreo técnico, datos y desempeño, etiquetas tardías | KS/TV y log loss con alertas controladas |
+| Clase 7, diap. 5–11 | Monitoreo técnico, datos y desempeño, etiquetas tardías | KS y chi cuadrado, log loss auxiliar y alarma temporal ROC AUC |
 | `drift/clase_drift.ipynb` | Separar cambio de entradas de cambio en relación X→y | Escenarios normal, desplazamiento y etiquetas invertidas |
 
 No se copiaron caches, identidades, historial Git, rutas personales ni modelos de los ejemplos.
